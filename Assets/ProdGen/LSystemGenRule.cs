@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 /// <summary>
 /// A scriptable object that contains the rules for a specific L-System.
@@ -22,3 +23,24 @@ public class LSystemGenRule : ScriptableObject
         return result[0];
     }
 }
+
+# if UNITY_EDITOR
+[CustomEditor(typeof(LSystemGenRule))]
+public class LSystemGenRuleEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        GUILayout.Label("RULE LETTERS");
+        GUILayout.Label("F = Draw");
+        GUILayout.Label("[ = Save");    
+        GUILayout.Label("] = Restore");
+        GUILayout.Label("L = Left turn");
+        GUILayout.Label("R = Right turn");
+        GUILayout.Label("+ = Length++");
+        GUILayout.Label("- = Length--");
+
+    }
+}
+#endif
