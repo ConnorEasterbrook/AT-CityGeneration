@@ -5,11 +5,15 @@ using UnityEditor;
 
 public class LSystemVisualizer : MonoBehaviour
 {
+    [Header("GameObjects")]
     public LSystemGenerator lSystemGenerator;
     List<Vector3> positions = new List<Vector3>(); // We need to save the positions of the blocks as we generate them.
     public GameObject prefab; // The prefab to use for the blocks.
     public Material lineMaterial; // The material to use for the lines.
-    private int length = 8; // The length of the generations.
+
+    [Header("Settings")]
+    public string axiom; // The starting string for the L-System.
+    public int length = 10; // The length of the generations.
     public float angle = 90; // The angle that the algorithm uses to turn left or right after every iteration.
 
     public int Length
@@ -34,7 +38,7 @@ public class LSystemVisualizer : MonoBehaviour
 
     private void Start()
     {
-        string sequence = lSystemGenerator.GenerateResult(); // Generate the sequence of characters.   
+        string sequence = lSystemGenerator.GenerateResult(axiom); // Generate the sequence of characters.   
         Visualize(sequence); // Visualize the sequence. 
     }
 
@@ -45,7 +49,7 @@ public class LSystemVisualizer : MonoBehaviour
     {
         if (sequence == null)
         {
-            sequence = lSystemGenerator.GenerateResult();
+            sequence = lSystemGenerator.GenerateResult(axiom);
         }
 
         Stack<LSystemAssistantScript> blockStack = new Stack<LSystemAssistantScript>(); // We need a stack to save the current position and rotation of the block being generated.

@@ -14,4 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   identifier: F
   result:
-  - '[+RF][-LF]'
+  - '[RF][LF]'
+  - '[RF]F[LF]'
+  - '[LF]F[RF]'
+  randomness: 0

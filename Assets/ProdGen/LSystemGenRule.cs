@@ -13,6 +13,7 @@ public class LSystemGenRule : ScriptableObject
 {
     public string identifier; // The string to look for in order to trigger the rule.
     public string[] result = null; // The result of the rule.
+    public bool randomness = false; // Whether or not the result should be involve randomness.
 
     /// <summary> 
     /// This is a simple function that will return the result of the rule. 
@@ -20,6 +21,12 @@ public class LSystemGenRule : ScriptableObject
     /// </summary>
     public string GetResult()
     {
+        // If the randomness is enabled, we need to pick a random result from the rules array.
+        if (randomness)
+        {
+            int chaosIndex = Random.Range(0, result.Length);
+            return result[chaosIndex];
+        }
         return result[0];
     }
 }
