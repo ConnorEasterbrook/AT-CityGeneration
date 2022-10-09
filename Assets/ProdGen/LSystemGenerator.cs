@@ -12,17 +12,18 @@ using UnityEditor;
 /// </summary>
 public class LSystemGenerator : MonoBehaviour
 {
-    public string axiom; // The starting string for the L-System. 
-    public LSystemGenRule[] rules; // Input space for L-System rules.
-    [Range(0, 5)] public int iterations = 1; // The number of iterations to run the L-System for.
-    [Range(0, 1)] public float randomnessChance = 0.5f; // The amount of randomness to use in the rules.
+    public LSystemGenRoad lSystemGenRoad;
+
 
     [Header("GameObjects")]
+    public LSystemGenRule[] rules; // Input space for L-System rules.
     List<Vector3> positions = new List<Vector3>(); // We need to save the positions of the blocks as we generate them.
     public GameObject prefab; // The prefab to use for the blocks.
     public Material lineMaterial; // The material to use for the lines.
 
     [Header("Settings")]
+    public string axiom; // The starting string for the L-System. 
+    [Range(0, 5)] public int iterations = 1; // The number of iterations to run the L-System for.
     public int length = 10; // The length of the generations.
     public float angle = 90; // The angle that the algorithm uses to turn left or right after every iteration.
     public int Length
@@ -44,6 +45,11 @@ public class LSystemGenerator : MonoBehaviour
             length = value;
         }
     }
+
+    [Header("Variation")]
+    public bool ignoreRules = false; // Whether or not to ignore the rules and just use the axiom.
+    [Range(0, 1)] public float ignoreRuleChance = 0.5f; // The amount of randomness to use in the rules.
+    [Range(0, 4)] public int ignoreAfterIterationIndex = 1; // The iteration to start ignoring the rules.
 
     private void Start()
     {
@@ -101,14 +107,15 @@ public class LSystemGenerator : MonoBehaviour
             // If the current character matches the identifier for the rule, add the result of the rule to the new result.
             if (rule.identifier == character.ToString())
             {
-                if (Random.value > randomnessChance)
+                // If we are ignoring the rules, we need to check whether or not there is randomness. Only after a set iterationIndex to avoid the randomness at the start.
+                if (ignoreRules && iterationIndex >= ignoreAfterIterationIndex)
                 {
-                    return;
+                    if (Random.value < ignoreRuleChance)
+                    {
+                        return;
+                    }
                 }
-                else
-                {
-                    newResult.Append(Grow(rule.GetResult(), iterationIndex + 1)); // Call the grow function to check if more characters need to be added.
-                }
+                newResult.Append(Grow(rule.GetResult(), iterationIndex + 1)); // Call the grow function to check if more characters need to be added.
             }
         }
     }
@@ -127,7 +134,7 @@ public class LSystemGenerator : MonoBehaviour
         Vector3 currentPos = Vector3.zero; // We need to save the current position of the block being generated. This could help additional generation items, such as trees, to be generated in the correct position.
 
         Vector3 direction = Vector3.forward; // Starting direction of the generated block.
-        Vector3 newPos = Vector3.zero;
+        Vector3 newPos = Vector3.zero; // The new position of the block being generated.
 
         positions.Add(currentPos); // Add the current position to the list of positions.
 
@@ -136,8 +143,13 @@ public class LSystemGenerator : MonoBehaviour
             switch (letter)
             {
                 case 'F': // Move forward and draw a line.
-                    newPos = currentPos + direction * Length; // Calculate the new position.
+                    newPos = currentPos + (direction * Length); // Calculate the new position.
                     DrawLine(currentPos, newPos, Color.red); // Draw a line between the current position and the new position.
+
+
+                    lSystemGenRoad.PlaceStreet(currentPos, direction, length);
+
+
                     positions.Add(newPos); // Add the new position to the list of positions.
                     currentPos = newPos; // Update the current position.
                     // Length -= 1; // Decrease the length of the generation.
@@ -199,8 +211,9 @@ public class LSystemGenerator : MonoBehaviour
         // We need to instantiate the prefab for each position in the list of positions.
         foreach (var position in positions)
         {
-            GameObject instantiation = Instantiate(prefab, position, Quaternion.identity);
-            instantiation.transform.parent = gameObject.transform;
+            GameObject instantiation = Instantiate(prefab, position, Quaternion.identity); // Instantiate the prefab.
+            instantiation.transform.parent = gameObject.transform; // Set the parent of the instantiated prefab to this game object.
+            instantiation.transform.localScale = new Vector3(0.5f, 2, 0.5f); // Ensure the prefab is appropriately sized.
         }
     }
 
@@ -234,6 +247,7 @@ public class LSystemGenerator : MonoBehaviour
     {
         gameObject.transform.DeleteChildren(); // Delete the children of the current game object.
         positions.Clear(); // Clear the positions list.
+        lSystemGenRoad.transform.DeleteChildren();
     }
 }
 
@@ -263,7 +277,7 @@ public class LSystemGeneratorEditor : Editor
         {
             Debug.Log(generator.GenerateResult());
         }
-        
+
         // Style the header GUIStyle.
         headerStyle.fontSize = 15;
         headerStyle.fontStyle = FontStyle.Bold;
@@ -274,7 +288,7 @@ public class LSystemGeneratorEditor : Editor
         GUILayout.Label("ALGORITHM AXIOM RULES", headerStyle);
         GUILayout.Label("RULE LETTERS");
         GUILayout.Label("F = Draw");
-        GUILayout.Label("[ = Save");    
+        GUILayout.Label("[ = Save");
         GUILayout.Label("] = Restore");
         GUILayout.Label("L = Left turn");
         GUILayout.Label("R = Right turn");
