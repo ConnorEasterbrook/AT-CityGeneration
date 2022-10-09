@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class LSystemVisualizer : MonoBehaviour
 {
@@ -40,13 +41,18 @@ public class LSystemVisualizer : MonoBehaviour
     /// <summary>
     /// This function will visualize the generated L-System .
     /// </summary>
-    public void Visualize(string sequence)
+    public void Visualize(string sequence = null)
     {
+        if (sequence == null)
+        {
+            sequence = lSystemGenerator.GenerateResult();
+        }
+
         Stack<LSystemAssistantScript> blockStack = new Stack<LSystemAssistantScript>(); // We need a stack to save the current position and rotation of the block being generated.
         Vector3 currentPos = Vector3.zero; // We need to save the current position of the block being generated. This could help additional generation items, such as trees, to be generated in the correct position.
 
         Vector3 direction = Vector3.forward; // Starting direction of the generated block.
-        Vector3 tempPos = Vector3.zero;
+        Vector3 newPos = Vector3.zero;
 
         positions.Add(currentPos); // Add the current position to the list of positions.
 
@@ -54,11 +60,11 @@ public class LSystemVisualizer : MonoBehaviour
         {
             switch (letter)
             {
-                case 'F': // Move forward.
-                    tempPos = currentPos + direction * Length; // Calculate the new position.
-                    DrawLine(tempPos, currentPos, Color.red); // Draw a line between the current position and the new position.
-                    positions.Add(tempPos); // Add the new position to the list of positions.
-                    currentPos = tempPos; // Update the current position.
+                case 'F': // Move forward and draw a line.
+                    newPos = currentPos + direction * Length; // Calculate the new position.
+                    DrawLine(currentPos, newPos, Color.red); // Draw a line between the current position and the new position.
+                    positions.Add(newPos); // Add the new position to the list of positions.
+                    currentPos = newPos; // Update the current position.
                     // Length -= 1; // Decrease the length of the generation.
                     break;
 
@@ -77,12 +83,12 @@ public class LSystemVisualizer : MonoBehaviour
                     break;
 
                 case ']': // Restore the current position and rotation.
-                if (blockStack.Count > 0)
+                    if (blockStack.Count > 0)
                     {
-                    LSystemAssistantScript assistant = blockStack.Pop(); // Pop the current position and rotation from the stack.
-                    currentPos = assistant.position; // Update the current position.
-                    direction = assistant.direction; // Update the direction.
-                    Length = assistant.length; // Update the length.
+                        LSystemAssistantScript assistant = blockStack.Pop(); // Pop the current position and rotation from the stack.
+                        currentPos = assistant.position; // Update the current position.
+                        direction = assistant.direction; // Update the direction.
+                        Length = assistant.length; // Update the length.
                     }
                     else
                     {
@@ -118,24 +124,62 @@ public class LSystemVisualizer : MonoBehaviour
         // We need to instantiate the prefab for each position in the list of positions.
         foreach (var position in positions)
         {
-            Instantiate(prefab, position, Quaternion.identity);
+            GameObject instantiation = Instantiate(prefab, position, Quaternion.identity);
+            instantiation.transform.parent = gameObject.transform;
         }
     }
 
     /// <summary>
-    /// This function will draw a line between the two given points.
+    /// This function will draw a line between the two given points. The previously generated block and the newly generated block.
     /// </summary>
     private void DrawLine(Vector3 start, Vector3 end, Color color)
     {
-        GameObject line = new GameObject("line");
-        line.transform.position = start;
-        var lineRenderer = line.AddComponent<LineRenderer>();
-        lineRenderer.material = lineMaterial;
-        lineRenderer.startColor = color;
-        lineRenderer.endColor = color;
+        GameObject line = new GameObject("line"); // Create a new line gameobject.
+        var lineRenderer = line.AddComponent<LineRenderer>(); // Add a line renderer to the line gameobject.
+        lineRenderer.material = lineMaterial; // Set the material of the line renderer.
+
+        // Set the positions of the line renderer.
+        lineRenderer.SetPosition(1, start);
+        lineRenderer.SetPosition(0, end);
+
+        // We need to set the width of the line renderer otherwise it looks odd.
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
-        lineRenderer.SetPosition(0, end);
-        lineRenderer.SetPosition(1, start);
+
+        line.transform.parent = gameObject.transform; // Set the parent of the line to the current game object.
+    }
+
+    public void CallVisualizeFromEditor()
+    {
+        ClearInspectorView();
+        Visualize();
+    }
+
+    public void ClearInspectorView()
+    {
+        gameObject.transform.DeleteChildren(); // Delete the children of the current game object.
+        positions.Clear(); // Clear the positions list.
     }
 }
+
+#if UNITY_EDITOR
+[CustomEditor(typeof(LSystemVisualizer))]
+public class LSystemVisualizerEditor : Editor
+{
+    public override void OnInspectorGUI()
+    {
+        DrawDefaultInspector();
+
+        LSystemVisualizer visualizer = (LSystemVisualizer)target;
+
+        if (GUILayout.Button("Generate"))
+        {
+            visualizer.CallVisualizeFromEditor();
+        }
+        if (GUILayout.Button("Clear"))
+        {
+            visualizer.ClearInspectorView();
+        }
+    }
+}
+#endif

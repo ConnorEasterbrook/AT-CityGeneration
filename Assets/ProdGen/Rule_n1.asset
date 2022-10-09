@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   identifier: F
   result:
-  - '[LF][RF]'
+  - '[+RF][-LF]'

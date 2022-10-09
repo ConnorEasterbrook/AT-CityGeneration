@@ -24,14 +24,25 @@ public class LSystemGenRule : ScriptableObject
     }
 }
 
+// Simple editor script to add labels in the editor inspector.
 # if UNITY_EDITOR
 [CustomEditor(typeof(LSystemGenRule))]
 public class LSystemGenRuleEditor : Editor
 {
+    private GUIStyle headerStyle = new GUIStyle();
+    
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
+        
+        // Style the header GUIStyle.
+        headerStyle.fontSize = 15;
+        headerStyle.fontStyle = FontStyle.Bold;
+        headerStyle.normal.textColor = Color.gray;
 
+        // ALGORITHM AXIOM RULES
+        GUILayout.Space(20);
+        GUILayout.Label("ALGORITHM AXIOM RULES", headerStyle);
         GUILayout.Label("RULE LETTERS");
         GUILayout.Label("F = Draw");
         GUILayout.Label("[ = Save");    
@@ -40,7 +51,17 @@ public class LSystemGenRuleEditor : Editor
         GUILayout.Label("R = Right turn");
         GUILayout.Label("+ = Length++");
         GUILayout.Label("- = Length--");
-
     }
 }
 #endif
+
+/// <summary>
+/// A small class that contains the data for the currently generated block within the L-System.
+/// </summary>
+public class LSystemAssistantScript
+{
+    // We need variables to save the current position and rotation of the block being generated.
+    public Vector3 position; 
+    public Vector3 direction;
+    public int length;
+}

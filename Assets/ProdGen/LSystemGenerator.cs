@@ -61,7 +61,7 @@ public class LSystemGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// This function will process the rules for the current character and grow the string appropriately.
+    /// This function will process the rules for the current character and grow the string appropriately. Calling Grow() to check if more characters are needed
     /// </summary>
     private void ProcessRules(StringBuilder newResult, char character, int iterationIndex)
     {
@@ -81,6 +81,8 @@ public class LSystemGenerator : MonoBehaviour
 [CustomEditor(typeof(LSystemGenerator))]
 public class LSystemGeneratorEditor : Editor
 {
+    private GUIStyle headerStyle = new GUIStyle();
+
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
@@ -91,6 +93,23 @@ public class LSystemGeneratorEditor : Editor
         {
             Debug.Log(generator.GenerateResult());
         }
+        
+        // Style the header GUIStyle.
+        headerStyle.fontSize = 15;
+        headerStyle.fontStyle = FontStyle.Bold;
+        headerStyle.normal.textColor = Color.gray;
+
+        // ALGORITHM AXIOM RULES
+        GUILayout.Space(20);
+        GUILayout.Label("ALGORITHM AXIOM RULES", headerStyle);
+        GUILayout.Label("RULE LETTERS");
+        GUILayout.Label("F = Draw");
+        GUILayout.Label("[ = Save");    
+        GUILayout.Label("] = Restore");
+        GUILayout.Label("L = Left turn");
+        GUILayout.Label("R = Right turn");
+        GUILayout.Label("+ = Length++");
+        GUILayout.Label("- = Length--");
     }
 }
 #endif
