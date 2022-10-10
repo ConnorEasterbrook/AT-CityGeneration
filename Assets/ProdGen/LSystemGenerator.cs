@@ -209,11 +209,23 @@ public class LSystemGenerator : MonoBehaviour
         prefab.transform.localScale = new Vector3(1, 1, 1); // Ensure the prefab is appropriately sized.
 
         // We need to instantiate the prefab for each position in the list of positions.
-        foreach (var position in positions)
+        foreach (Vector3 position in positions)
         {
             GameObject instantiation = Instantiate(prefab, position, Quaternion.identity); // Instantiate the prefab.
             instantiation.transform.parent = gameObject.transform; // Set the parent of the instantiated prefab to this game object.
             instantiation.transform.localScale = new Vector3(0.5f, 2, 0.5f); // Ensure the prefab is appropriately sized.
+
+            Collider[] overlapColliders = Physics.OverlapSphere(instantiation.transform.position, 5f, LayerMask.GetMask("UI"));
+
+            foreach (Collider instantiationcollider in overlapColliders)
+            {
+                DrawLine(instantiationcollider.transform.position, position, Color.red);
+
+                Vector3 dir = (instantiationcollider.transform.position - position).normalized;
+                float distance = Vector3.Distance(instantiationcollider.transform.position, position);
+
+                lSystemGenRoad.PlaceConnectingStreet(position, dir, Mathf.RoundToInt(distance) - 1);
+            }
         }
     }
 
