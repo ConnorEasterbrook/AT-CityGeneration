@@ -1,2 +1,0 @@
-Basic grid at 90 degrees = [F]LLF
-Sci-fi look at 45 degrees = [F][LLLLF][RRRRF][LL-----F][RR-----F]

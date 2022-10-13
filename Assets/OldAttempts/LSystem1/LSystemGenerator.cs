@@ -23,7 +23,7 @@ public class LSystemGenerator : MonoBehaviour
 
     [Header("Settings")]
     public string axiom; // The starting string for the L-System. 
-    [Range(0, 5)] public int iterations = 1; // The number of iterations to run the L-System for.
+    [Range(0, 8)] public int iterations = 1; // The number of iterations to run the L-System for.
     public int length = 10; // The length of the generations.
     public float angle = 90; // The angle that the algorithm uses to turn left or right after every iteration.
     public int Length
@@ -144,7 +144,7 @@ public class LSystemGenerator : MonoBehaviour
             {
                 case 'F': // Move forward and draw a line.
                     newPos = currentPos + (direction * Length); // Calculate the new position.
-                    DrawLine(currentPos, newPos, Color.red); // Draw a line between the current position and the new position.
+                    DrawLine(currentPos, newPos); // Draw a line between the current position and the new position.
 
 
                     lSystemGenRoad.PlaceStreet(currentPos, direction, length);
@@ -188,8 +188,16 @@ public class LSystemGenerator : MonoBehaviour
                     direction = Quaternion.Euler(0, angle, 0) * direction; // Update the direction.
                     break;
 
+                case 'r': // Turn right 90.
+                    direction = Quaternion.Euler(0, 90, 0) * direction; // Update the direction.
+                    break;
+
                 case 'L': // Turn left.
                     direction = Quaternion.Euler(0, -angle, 0) * direction; // Update the direction.
+                    break;
+
+                case 'l': // Turn left 90.
+                    direction = Quaternion.Euler(0, 90, 0) * direction; // Update the direction.
                     break;
 
                 // The following cases are used to change the length of the generated blocks.
@@ -219,7 +227,7 @@ public class LSystemGenerator : MonoBehaviour
 
             foreach (Collider instantiationcollider in overlapColliders)
             {
-                DrawLine(instantiationcollider.transform.position, position, Color.red);
+                DrawLine(instantiationcollider.transform.position, position);
 
                 Vector3 dir = (instantiationcollider.transform.position - position).normalized;
                 float distance = Vector3.Distance(instantiationcollider.transform.position, position);
@@ -232,7 +240,7 @@ public class LSystemGenerator : MonoBehaviour
     /// <summary>
     /// This function will draw a line between the two given points. The previously generated block and the newly generated block.
     /// </summary>
-    private void DrawLine(Vector3 start, Vector3 end, Color color)
+    private void DrawLine(Vector3 start, Vector3 end)
     {
         GameObject line = new GameObject("line"); // Create a new line gameobject.
         var lineRenderer = line.AddComponent<LineRenderer>(); // Add a line renderer to the line gameobject.
@@ -257,9 +265,18 @@ public class LSystemGenerator : MonoBehaviour
 
     public void ClearInspectorView()
     {
-        gameObject.transform.DeleteChildren(); // Delete the children of the current game object.
+        // Delete the children of the current game object.
+        while (gameObject.transform.childCount != 0)
+        {
+            Destroy(gameObject.transform.GetChild(0).gameObject);
+        };
+
         positions.Clear(); // Clear the positions list.
-        lSystemGenRoad.transform.DeleteChildren();
+
+        while (lSystemGenRoad.transform.childCount != 0)
+        {
+            Destroy(lSystemGenRoad.transform.GetChild(0).gameObject);
+        };
     }
 }
 
@@ -302,8 +319,10 @@ public class LSystemGeneratorEditor : Editor
         GUILayout.Label("F = Draw");
         GUILayout.Label("[ = Save");
         GUILayout.Label("] = Restore");
-        GUILayout.Label("L = Left turn");
         GUILayout.Label("R = Right turn");
+        GUILayout.Label("r = Right turn 90");
+        GUILayout.Label("L = Left turn");
+        GUILayout.Label("l = Left turn 90");
         GUILayout.Label("+ = Length++");
         GUILayout.Label("- = Length--");
     }
