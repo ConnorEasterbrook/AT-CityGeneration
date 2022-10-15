@@ -14,12 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab:
   - {fileID: 1827270247712948, guid: f2b055ed15f48bd4793c0d0ef6185ee5, type: 3}
-  - {fileID: 1863549030409334, guid: 544cd25ee8b26f549b827a231b2faf0c, type: 3}
   - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
-  - {fileID: 1803457609799654, guid: 318f42008434d4f49aa6d43ae0a5c686, type: 3}
   - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
-  - {fileID: 1825706968152292, guid: 5ff647d15160e7e42917b3e338c66c66, type: 3}
-  - {fileID: 1061378874041180, guid: 14db1ccf5b7890b499bfd6c79b3bf46f, type: 3}
   north:
     name: 2
   east:
@@ -29,6 +25,6 @@ MonoBehaviour:
   west:
     name: 2
   above:
-    name: 
+    name: 0
   below:
     name: 

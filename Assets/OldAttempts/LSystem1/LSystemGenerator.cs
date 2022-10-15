@@ -265,17 +265,16 @@ public class LSystemGenerator : MonoBehaviour
 
     public void ClearInspectorView()
     {
-        // Delete the children of the current game object.
-        while (gameObject.transform.childCount != 0)
-        {
-            Destroy(gameObject.transform.GetChild(0).gameObject);
-        };
-
         positions.Clear(); // Clear the positions list.
 
+        // Delete the children of the current game object.
+        while (transform.childCount > 0)
+        {
+            DestroyImmediate(gameObject.transform.GetChild(0).gameObject);
+        };
         while (lSystemGenRoad.transform.childCount != 0)
         {
-            Destroy(lSystemGenRoad.transform.GetChild(0).gameObject);
+            DestroyImmediate(lSystemGenRoad.transform.GetChild(0).gameObject);
         };
     }
 }

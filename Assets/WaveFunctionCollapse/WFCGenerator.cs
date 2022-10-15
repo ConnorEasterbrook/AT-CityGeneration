@@ -10,6 +10,7 @@ namespace WFCGenerator
 
         [Header("Visual Options")]
         public bool drawGizmos = true;
+        public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
 
         private void Start()
@@ -23,7 +24,11 @@ namespace WFCGenerator
             {
                 return;
             }
-            grid.DrawGizmos();
+
+            if (drawGenerationMarkers)
+            {
+                grid.DrawGenMarkers(gameObject);
+            }
         }
 
         private void OnEnable()

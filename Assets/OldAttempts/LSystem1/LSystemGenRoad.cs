@@ -26,7 +26,7 @@ public class LSystemGenRoad : MonoBehaviour
 
             // Check if there is already a road at this position.
             Collider[] roadColliders = Physics.OverlapBox(position, new Vector3(1, 1, 1), rotation);
-            if (roadColliders.Length <= 1)
+            if (roadColliders.Length <= 3)
             {
                 GameObject road = Instantiate(roadStraight, position, rotation, transform); // Generate the road.
                 road.transform.parent = gameObject.transform; // Set the parent of the road to the road generator.
@@ -59,7 +59,7 @@ public class LSystemGenRoad : MonoBehaviour
 
             // Check if there is already a road at this position.
             Collider[] roadColliders = Physics.OverlapBox(position, new Vector3(1, 1, 1), rotation);
-            if (roadColliders.Length <= 1)
+            if (roadColliders.Length <= 3)
             {
                 position = new Vector3(position.x, position.y - 0.005f, position.z); // Move the road down a bit to avoid texture clipping.
                 GameObject road = Instantiate(roadStraight, position, rotation, transform); // Generate the road.

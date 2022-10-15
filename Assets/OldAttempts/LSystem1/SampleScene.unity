@@ -337,12 +337,12 @@ MonoBehaviour:
   prefab: {fileID: 6329260610902892143, guid: b2d80d4ae6affc54fa4f1a6e7a48a286, type: 3}
   lineMaterial: {fileID: 2100000, guid: 93e9ef9eb0fc5344283d51af6f5e42c8, type: 2}
   axiom: '[++F]'
-  iterations: 6
+  iterations: 2
   length: 20
-  angle: 30
+  angle: 90
   ignoreRules: 0
   ignoreRuleChance: 0.107
-  ignoreAfterIterationIndex: 1
+  ignoreAfterIterationIndex: 0
 --- !u!4 &1558330447
 Transform:
   m_ObjectHideFlags: 0

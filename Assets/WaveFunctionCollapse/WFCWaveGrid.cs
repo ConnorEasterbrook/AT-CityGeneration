@@ -22,7 +22,7 @@ namespace WFCGenerator
         public int width = 5; // Width of the grid.
         public int length = 10; // Length of the grid.
         public int height = 1; // Height of the grid.
-        public float blockSize = 5f; // Size of each block.
+        public float slotSize = 5f; // Size of each block.
 
         // Private variables.
         private Vector3 blockOffset;
@@ -93,9 +93,11 @@ namespace WFCGenerator
             // Organise in inspector.
             root = new GameObject(name).transform; // Create a new game object with the name of the grid.
             root.parent = generator.transform;  // Set the parent of the game object to the generator.
+            root.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * height) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
+            root.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
 
             // Instantiate variables.
-            blockOffset = new Vector3(width * blockSize / 2f, height * blockSize / 2f, length * blockSize / 2f); // Instantiate the block offset.
+            blockOffset = new Vector3(width * slotSize / 2f, height * slotSize / 2f, length * slotSize / 2f); // Instantiate the block offset.
             wave = new bool[width * length * height, 6, modules.Count, modules.Count]; // Instantiate the wave function collapse algorithm.
             possibilities = new bool[width * length * height, modules.Count]; // Instantiate the possibilities boolean.
             entropy = new int[width * length * height]; // Instantiate the entropy integer.
@@ -406,11 +408,25 @@ namespace WFCGenerator
                 return;
             }
 
+            InstantiatePrefabs(index, module);
+        }
+
+        /// <summary>
+        /// Instantiate the prefabs. Implementing randomness.
+        /// </summary>
+        private void InstantiatePrefabs(int index, int module)
+        {
             // If a module was set.
             if (modules[module].prefab != null)
             {
                 int rng = Random.Range(0, modules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
                 GameObject item = GameObject.Instantiate(modules[module].prefab[rng], root); // Instantiate the module prefab at the root transform.
+
+                if (rng > modules[module].prefab.Length)
+                {
+                    Debug.LogError("Prefab index out of range");
+                    Debug.Log("RNG: " + rng + " ... Modules: " + modules[module].prefab.Length);
+                }
 
                 Vector3 blockCoordinates = Reshape(index); // Get the x, y, and z coordinates of the block.
                 int x = Mathf.RoundToInt(blockCoordinates.x); // Get the x coordinate of the block.
@@ -426,15 +442,21 @@ namespace WFCGenerator
         /// </summary>
         Vector3 GetPosition(int x, int y, int z)
         {
-            Vector3 position = new Vector3(
-                x * blockSize - blockOffset.x + blockSize,
-                y * blockSize - blockOffset.y + blockSize / 2f,
-                z * blockSize - blockOffset.z + blockSize / 2f
+            // Calculate the position of the slot.
+            Vector3 position = new Vector3
+            (
+                x * slotSize - blockOffset.x + slotSize,
+                y * slotSize - blockOffset.y + slotSize / 2f,
+                z * slotSize - blockOffset.z + slotSize / 2f
             );
+
             return position;
         }
 
-        public void DrawGizmos()
+        /// <summary>
+        /// Draw objects that represent the wave function in empty slots.
+        /// </summary>
+        public void DrawGenMarkers(GameObject generator)
         {
             // If the generation has not been started or has been completed.
             if (wave == null)
@@ -442,7 +464,7 @@ namespace WFCGenerator
                 return;
             }
 
-            Gizmos.color = Color.white; // Set the Wave Function Collapse gizmo color to white.
+            Gizmos.color = Color.red; // Set the Wave Function Collapse gizmo color to white.
 
             // For each slot on the grid.
             for (int x = 0; x < width; x++)
@@ -460,7 +482,9 @@ namespace WFCGenerator
                             continue;
                         }
 
-                        Gizmos.DrawCube(GetPosition(x, y, z), Vector3.one * 2f * entropy / modules.Count); // Draw a cube at the slot position.
+                        Vector3 position = generator.transform.localPosition + GetPosition(x, y, z); // Get the position of the slot.
+
+                        Gizmos.DrawCube(position, Vector3.one * 2f * entropy / modules.Count); // Draw a cube at the slot position.
                     }
                 }
             }

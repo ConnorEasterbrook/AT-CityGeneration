@@ -23,6 +23,6 @@ MonoBehaviour:
   west:
     name: 2
   above:
-    name: 
+    name: 0
   below:
     name: 
