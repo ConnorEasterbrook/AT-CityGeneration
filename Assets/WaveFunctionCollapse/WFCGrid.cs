@@ -60,7 +60,6 @@ namespace WFCGenerator
                     else
                     {
                         // If the next slot is not found, generation is successful.
-                        Debug.Log("Generation successful!");
                         return;
                     }
                 }
@@ -106,18 +105,18 @@ namespace WFCGenerator
             entropy = new int[gridWidth * gridLength * gridHeight]; // Instantiate the entropy integer.
 
             // For each slot in the grid
-            for (int slotIndex = 0; slotIndex < generation.GetLength(0); slotIndex++)
+            for (int currentSlot = 0; currentSlot < generation.GetLength(0); currentSlot++)
             {
                 // For each module
-                for (int module = 0; module < generationModules.Count; module++)
+                for (int slotModule = 0; slotModule < generationModules.Count; slotModule++)
                 {
                     bool possible = true; // Assume the module is possible
 
                     // For each face of the cube
-                    for (int face = 0; face < 6; face++)
+                    for (int neighbourSlot = 0; neighbourSlot < 6; neighbourSlot++)
                     {
                         // If the module doesn't connect to the other module
-                        if (!GetAdjacent(slotIndex, face, out _))
+                        if (!GetAdjacent(currentSlot, neighbourSlot, out _))
                         {
                             continue;
                         }
@@ -125,13 +124,24 @@ namespace WFCGenerator
                         bool connected = false; // Assume the module isn't connected
 
                         // For each face of the block, run through the modules.
-                        for (int connectingModule = 0; connectingModule < generationModules.Count; connectingModule++)
+                        for (int neighbourSlotModule = 0; neighbourSlotModule < generationModules.Count; neighbourSlotModule++)
                         {
                             // If the module connects to the other module
-                            if (generationModules[module].ConnectsTo(generationModules[connectingModule], face))
+                            if (generationModules[slotModule].ConnectsTo(generationModules[neighbourSlotModule], neighbourSlot))
                             {
-                                generation[slotIndex, face, module, connectingModule] = true; // Set the wave booleans to true
-                                connected = true; // Set connected to true
+                                if (generationModules[slotModule] != generationModules[neighbourSlotModule])
+                                {
+                                    generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                                    connected = true; // Set connected to true
+                                }
+                                else
+                                {
+                                    if (generationModules[slotModule].CheckRestrictions(generationModules[neighbourSlotModule], neighbourSlot))
+                                    {
+                                        generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                                        connected = true; // Set connected to true
+                                    }
+                                }
                             }
                         }
 
@@ -142,12 +152,12 @@ namespace WFCGenerator
                         }
                     }
 
-                    possibilities[slotIndex, module] = possible; // Set the possibilities to the possible boolean. True if connected, false if not.
+                    possibilities[currentSlot, slotModule] = possible; // Set the possibilities to the possible boolean. True if connected, false if not.
 
                     // If the module is possible
                     if (possible)
                     {
-                        entropy[slotIndex]++; // Increase the entropy
+                        entropy[currentSlot]++; // Increase the entropy
                     }
                 }
             }
