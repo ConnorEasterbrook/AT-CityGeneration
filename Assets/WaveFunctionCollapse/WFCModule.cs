@@ -9,25 +9,26 @@ namespace WFCGenerator
     public class WFCModule : ScriptableObject
     {
         public GameObject[] prefab;
-        [HideInInspector] public WFCConnection north;
-        [HideInInspector] public WFCConnection east;
-        [HideInInspector] public WFCConnection south;
-        [HideInInspector] public WFCConnection west;
+        [HideInInspector] public WFCConnection forward;
+        [HideInInspector] public WFCConnection right;
+        [HideInInspector] public WFCConnection back;
+        [HideInInspector] public WFCConnection left;
         [HideInInspector] public WFCConnection above;
         [HideInInspector] public WFCConnection below;
+        public bool rotate180;
 
         public bool ConnectsTo(WFCModule other, int direction)
         {
             switch (direction)
             {
                 case 0:
-                    return south.ConnectsTo(other.north);
+                    return back.ConnectsTo(other.forward);
                 case 1:
-                    return west.ConnectsTo(other.east);
+                    return left.ConnectsTo(other.right);
                 case 2:
-                    return north.ConnectsTo(other.south);
+                    return forward.ConnectsTo(other.back);
                 case 3:
-                    return east.ConnectsTo(other.west);
+                    return right.ConnectsTo(other.left);
                 case 4:
                     return above.ConnectsTo(other.below);
                 case 5:
@@ -42,17 +43,16 @@ namespace WFCGenerator
     [UnityEditor.CustomEditor(typeof(WFCModule))]
     public class WFCModuleEditor : UnityEditor.Editor
     {
-        private SerializedObject prefab;
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
             WFCModule module = (WFCModule)target;
 
-            serializedObject.FindProperty("north.name").stringValue = EditorGUILayout.TextField("North", module.north.name);
-            serializedObject.FindProperty("east.name").stringValue = EditorGUILayout.TextField("East", module.east.name);
-            serializedObject.FindProperty("south.name").stringValue = EditorGUILayout.TextField("South", module.south.name);
-            serializedObject.FindProperty("west.name").stringValue = EditorGUILayout.TextField("West", module.west.name);
+            serializedObject.FindProperty("forward.name").stringValue = EditorGUILayout.TextField("Forward", module.forward.name);
+            serializedObject.FindProperty("right.name").stringValue = EditorGUILayout.TextField("Right", module.right.name);
+            serializedObject.FindProperty("back.name").stringValue = EditorGUILayout.TextField("Back", module.back.name);
+            serializedObject.FindProperty("left.name").stringValue = EditorGUILayout.TextField("Left", module.left.name);
             serializedObject.FindProperty("above.name").stringValue = EditorGUILayout.TextField("Above", module.above.name);
             serializedObject.FindProperty("below.name").stringValue = EditorGUILayout.TextField("Below", module.below.name);
 

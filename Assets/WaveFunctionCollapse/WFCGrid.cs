@@ -20,6 +20,7 @@ namespace WFCGenerator
         public int gridWidth = 10; // Width of the grid.
         public int gridLength = 15; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
+        public float heightOffset = 2.5f; // The height offset for each slot in the grid.
 
         // Private generation variables.
         static private readonly int _MAX_ATTEMPTS = 5; // Maximum number of attempts to generate a grid.
@@ -421,12 +422,20 @@ namespace WFCGenerator
             if (generationModules[module].prefab != null)
             {
                 int rng = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
-                GameObject item = GameObject.Instantiate(generationModules[module].prefab[rng], gridRoot); // Instantiate the module prefab at the root transform.
 
-                if (rng > generationModules[module].prefab.Length)
+                GameObject item; // Instantiate a new game object.
+
+                if (generationModules[module].prefab[rng] != null)
                 {
-                    Debug.LogError("Prefab index out of range");
-                    Debug.Log("RNG: " + rng + " ... Modules: " + generationModules[module].prefab.Length);
+                    // Instantiate the prefab.
+                    item = GameObject.Instantiate(generationModules[module].prefab[rng], gridRoot); // Instantiate the module prefab at the root transform.
+                    item.name = generationModules[module].prefab[rng].name;
+                }
+                else
+                {
+                    item = new GameObject();
+                    item.name = "Empty";
+                    item.transform.parent = gridRoot.transform; // Set the parent of the prefab to the root transform.
                 }
 
                 Vector3 blockCoordinates = Reshape(index); // Get the x, y, and z coordinates of the block.
@@ -435,6 +444,11 @@ namespace WFCGenerator
                 int z = Mathf.RoundToInt(blockCoordinates.z); // Get the z coordinate of the block.
 
                 item.transform.localPosition = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
+
+                if (generationModules[module].rotate180)
+                {
+                    item.transform.rotation = Quaternion.Euler(-90, 180, 180);
+                }
             }
         }
 
@@ -446,8 +460,8 @@ namespace WFCGenerator
             // Calculate the position of the slot.
             Vector3 position = new Vector3
             (
-                x * slotSize - slotOffset.x + slotSize,
-                y * slotSize - slotOffset.y + slotSize / 2f,
+                x * slotSize - slotOffset.x + slotSize / 2f,
+                (y * slotSize) + heightOffset,
                 z * slotSize - slotOffset.z + slotSize / 2f
             );
 

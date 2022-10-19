@@ -25,15 +25,15 @@ MonoBehaviour:
   - {fileID: 1690306615979778, guid: f46943be9ee7353449ca75c6fd768ddf, type: 3}
   - {fileID: 1690306615979778, guid: f46943be9ee7353449ca75c6fd768ddf, type: 3}
   - {fileID: 1126542258937496, guid: dc83d82e59754f34ea737a544b53fc9a, type: 3}
-  north:
-    name: 1
-  east:
-    name: 1
-  south:
-    name: 1
-  west:
-    name: 1
-  above:
+  forward:
     name: 0
+  right:
+    name: 0
+  back:
+    name: 0
+  left:
+    name: 0
+  above:
+    name: 
   below:
     name: 

@@ -16,15 +16,15 @@ MonoBehaviour:
   - {fileID: 1827270247712948, guid: f2b055ed15f48bd4793c0d0ef6185ee5, type: 3}
   - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
   - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
-  north:
+  forward:
     name: 2
-  east:
+  right:
     name: 2
-  south:
+  back:
     name: 2
-  west:
+  left:
     name: 2
   above:
-    name: 0
+    name: 
   below:
     name: 
