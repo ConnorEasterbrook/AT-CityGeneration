@@ -18,6 +18,8 @@ namespace WFCGenerator
         public bool rotate180;
         public bool banForward = false;
         public bool banLeft = false;
+        public bool banModules = false;
+        public WFCModule[] bannedModules;
 
         public bool ConnectsTo(WFCModule other, int direction)
         {
@@ -51,7 +53,95 @@ namespace WFCGenerator
             }
         }
 
-        public bool CheckRestrictions(WFCModule other, int direction)
+        public bool CheckBannedNeighbour(WFCModule other, int direction)
+        {
+            if (direction == 0)
+            {
+                bool banned = false;
+                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                {
+                    if (back.ConnectsTo(other.forward) && bannedModules[bannedNeighbourModule] == other)
+                    {
+                        banned = true;
+                    }
+                }
+
+                if (back.ConnectsTo(other.forward) && !banned)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (direction == 1)
+            {
+                bool banned = false;
+                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                {
+                    if (left.ConnectsTo(other.right) && bannedModules[bannedNeighbourModule] == other)
+                    {
+                        banned = true;
+                    }
+                }
+
+                if (left.ConnectsTo(other.right) && !banned)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (direction == 2)
+            {
+                bool banned = false;
+                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                {
+                    if (forward.ConnectsTo(other.back) && bannedModules[bannedNeighbourModule] == other)
+                    {
+                        banned = true;
+                    }
+                }
+
+                if (forward.ConnectsTo(other.back) && !banned)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (direction == 3)
+            {
+                bool banned = false;
+                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                {
+                    if (right.ConnectsTo(other.left) && bannedModules[bannedNeighbourModule] == other)
+                    {
+                        banned = true;
+                    }
+                }
+
+                if (right.ConnectsTo(other.left) && !banned)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                throw new System.ArgumentException("Invalid direction");
+            }
+        }
+
+        public bool CheckDuplicateRestriction(WFCModule other, int direction)
         {
             if (direction == 0)
             {

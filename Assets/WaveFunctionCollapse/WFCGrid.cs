@@ -129,17 +129,20 @@ namespace WFCGenerator
                             // If the module connects to the other module
                             if (generationModules[slotModule].ConnectsTo(generationModules[neighbourSlotModule], neighbourSlot))
                             {
-                                if (generationModules[slotModule] != generationModules[neighbourSlotModule])
+                                if (generationModules[slotModule].CheckBannedNeighbour(generationModules[neighbourSlotModule], neighbourSlot))
                                 {
-                                    generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
-                                    connected = true; // Set connected to true
-                                }
-                                else
-                                {
-                                    if (generationModules[slotModule].CheckRestrictions(generationModules[neighbourSlotModule], neighbourSlot))
+                                    if (generationModules[slotModule] != generationModules[neighbourSlotModule])
                                     {
                                         generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
                                         connected = true; // Set connected to true
+                                    }
+                                    else
+                                    {
+                                        if (generationModules[slotModule].CheckDuplicateRestriction(generationModules[neighbourSlotModule], neighbourSlot))
+                                        {
+                                            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                                            connected = true; // Set connected to true
+                                        }
                                     }
                                 }
                             }
