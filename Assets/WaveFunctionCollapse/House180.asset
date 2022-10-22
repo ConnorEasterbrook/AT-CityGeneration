@@ -13,6 +13,9 @@ MonoBehaviour:
   m_Name: House180
   m_EditorClassIdentifier: 
   prefab:
+  - {fileID: 1827270247712948, guid: f2b055ed15f48bd4793c0d0ef6185ee5, type: 3}
+  - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
+  - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
   - {fileID: 1825706968152292, guid: 5ff647d15160e7e42917b3e338c66c66, type: 3}
   forward:
     name: 4
@@ -26,4 +29,11 @@ MonoBehaviour:
     name: 
   below:
     name: 
-  rotate180: 0
+  rotate180: 1
+  randomRotation: 0
+  banForward: 0
+  banLeft: 0
+  banModules: 1
+  bannedModules:
+  - {fileID: 11400000, guid: 8e899d932c502384ca07b80fb6050e14, type: 2}
+  probability: 0

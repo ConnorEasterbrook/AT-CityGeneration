@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Crossroad
   m_EditorClassIdentifier: 
   prefab:
-  - {fileID: 100000, guid: d01219698fae7e44980b9b0d0c73654f, type: 3}
+  - {fileID: 8362343324595432027, guid: 82c71bac3a0d27645b2401c78298bb4d, type: 3}
   forward:
     name: 1
   right:
@@ -27,5 +27,10 @@ MonoBehaviour:
   below:
     name: 
   rotate180: 0
+  randomRotation: 0
   banForward: 1
   banLeft: 0
+  banModules: 1
+  bannedModules:
+  - {fileID: 11400000, guid: 487bbe975fbbb4046b81059bdc65d745, type: 2}
+  probability: 0

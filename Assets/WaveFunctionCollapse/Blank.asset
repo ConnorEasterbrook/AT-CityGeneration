@@ -14,6 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab:
   - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 919132149155446097, guid: ceb80e01bc7029b4c93624370ec6c598, type: 3}
+  - {fileID: 919132149155446097, guid: 17ee6fb0196a77045a0a1993adb9e55d, type: 3}
+  - {fileID: 919132149155446097, guid: a9eaa556458a47349bdcefdba98d7b52, type: 3}
+  - {fileID: 919132149155446097, guid: 328adb8b28b9aac44b0785b62f34a36a, type: 3}
+  - {fileID: 919132149155446097, guid: ec73aeab5d25aba47899ef1f43d10dcf, type: 3}
+  - {fileID: 919132149155446097, guid: 3e3b9073f128d2f4fa8bddde87652812, type: 3}
+  - {fileID: 919132149155446097, guid: 71daca4cd13724d40b8ae9be53c801e9, type: 3}
+  - {fileID: 919132149155446097, guid: 78d855c557fdeca4f9c5f3eff8ce3324, type: 3}
+  - {fileID: 919132149155446097, guid: fa3ef4094c136644590f0a8f2bb4b926, type: 3}
   forward:
     name: 0
   right:
@@ -27,3 +40,10 @@ MonoBehaviour:
   below:
     name: 
   rotate180: 0
+  randomRotation: 1
+  banForward: 0
+  banLeft: 0
+  banModules: 1
+  bannedModules:
+  - {fileID: 11400000, guid: 7e530fcaaf081754690ab854bd05f84c, type: 2}
+  probability: 1

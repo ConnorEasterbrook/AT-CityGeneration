@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HouseRoadLeft
   m_EditorClassIdentifier: 
   prefab:
-  - {fileID: 100000, guid: 4db74a5e9a11a27428b94f3a6a9dd34c, type: 3}
+  - {fileID: 4384177558676243387, guid: 965d834d728dab04a95e3539efbafa37, type: 3}
   forward:
     name: 4
   right:
@@ -27,5 +27,9 @@ MonoBehaviour:
   below:
     name: 
   rotate180: 0
-  banForward: 0
+  randomRotation: 0
+  banForward: 1
   banLeft: 0
+  banModules: 1
+  bannedModules: []
+  probability: 0

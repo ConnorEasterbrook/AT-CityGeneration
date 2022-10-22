@@ -16,10 +16,12 @@ namespace WFCGenerator
         [HideInInspector] public WFCConnection above;
         [HideInInspector] public WFCConnection below;
         public bool rotate180;
+        public bool randomRotation;
         public bool banForward = false;
         public bool banLeft = false;
         public bool banModules = false;
         public WFCModule[] bannedModules;
+        [Range(0, 1)] public float probability = 1;
 
         public bool ConnectsTo(WFCModule other, int direction)
         {
@@ -57,82 +59,110 @@ namespace WFCGenerator
         {
             if (direction == 0)
             {
-                bool banned = false;
-                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                if (banModules)
                 {
-                    if (back.ConnectsTo(other.forward) && bannedModules[bannedNeighbourModule] == other)
+                    bool banned = false;
+                    for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        banned = true;
+                        if (back.ConnectsTo(other.forward) && bannedModules[bannedNeighbourModule] == other)
+                        {
+                            banned = true;
+                        }
                     }
-                }
 
-                if (back.ConnectsTo(other.forward) && !banned)
-                {
-                    return true;
+                    if (back.ConnectsTo(other.forward) && !banned)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             else if (direction == 1)
             {
-                bool banned = false;
-                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                if (banModules)
                 {
-                    if (left.ConnectsTo(other.right) && bannedModules[bannedNeighbourModule] == other)
+                    bool banned = false;
+                    for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        banned = true;
+                        if (left.ConnectsTo(other.right) && bannedModules[bannedNeighbourModule] == other)
+                        {
+                            banned = true;
+                        }
                     }
-                }
 
-                if (left.ConnectsTo(other.right) && !banned)
-                {
-                    return true;
+                    if (left.ConnectsTo(other.right) && !banned)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             else if (direction == 2)
             {
-                bool banned = false;
-                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                if (banModules)
                 {
-                    if (forward.ConnectsTo(other.back) && bannedModules[bannedNeighbourModule] == other)
+                    bool banned = false;
+                    for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        banned = true;
+                        if (forward.ConnectsTo(other.back) && bannedModules[bannedNeighbourModule] == other)
+                        {
+                            banned = true;
+                        }
                     }
-                }
 
-                if (forward.ConnectsTo(other.back) && !banned)
-                {
-                    return true;
+                    if (forward.ConnectsTo(other.back) && !banned)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             else if (direction == 3)
             {
-                bool banned = false;
-                for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
+                if (banModules)
                 {
-                    if (right.ConnectsTo(other.left) && bannedModules[bannedNeighbourModule] == other)
+                    bool banned = false;
+                    for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        banned = true;
+                        if (right.ConnectsTo(other.left) && bannedModules[bannedNeighbourModule] == other)
+                        {
+                            banned = true;
+                        }
                     }
-                }
 
-                if (right.ConnectsTo(other.left) && !banned)
-                {
-                    return true;
+                    if (right.ConnectsTo(other.left) && !banned)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
                 else
                 {
-                    return false;
+                    return true;
                 }
             }
             else

@@ -67,6 +67,10 @@ namespace WFCGenerator
                 {
                     break; // If generation is successful, break the loop.
                 }
+                else
+                {
+                    Debug.Log("Generation failed. Attempt " + attempt + " of " + _MAX_ATTEMPTS + " failed.");
+                }
             }
         }
 
@@ -129,8 +133,10 @@ namespace WFCGenerator
                             // If the module connects to the other module
                             if (generationModules[slotModule].ConnectsTo(generationModules[neighbourSlotModule], neighbourSlot))
                             {
+                                // If the module has enabled banning of specific modules, check this module is not banned.
                                 if (generationModules[slotModule].CheckBannedNeighbour(generationModules[neighbourSlotModule], neighbourSlot))
                                 {
+                                    // If them modules differ then continue, else if the module has banned duplicates of itself, check this module is not a duplicate.
                                     if (generationModules[slotModule] != generationModules[neighbourSlotModule])
                                     {
                                         generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
@@ -354,26 +360,26 @@ namespace WFCGenerator
             for (int slotFaces = 0; slotFaces < 6; slotFaces++)
             {
                 // For each module.
-                for (int j = 0; j < generationModules.Count; j++)
+                for (int slotModule = 0; slotModule < generationModules.Count; slotModule++)
                 {
-                    generation[index, slotFaces, module, j] = false; // Mark the slot face of the module as false.
+                    generation[index, slotFaces, module, slotModule] = false; // Mark the slot face of the module as false.
 
                     // If the slot face is adjacent to another block.
-                    if (GetAdjacent(index, slotFaces, out int adjacent))
+                    if (GetAdjacent(index, slotFaces, out int currentSlot))
                     {
-                        int opposite = _OPPOSITE[slotFaces]; // Get the opposite face of the slot face.
+                        int neighbourSlot = _OPPOSITE[slotFaces]; // Get the opposite face of the slot face.
 
                         // If a module is possible after taking note of the current module.
-                        if (possibilities[adjacent, j])
+                        if (possibilities[currentSlot, slotModule])
                         {
-                            generation[adjacent, opposite, j, module] = false; // Mark the opposite face of the adjacent block as false.
+                            generation[currentSlot, neighbourSlot, slotModule, module] = false; // Mark the opposite face of the adjacent block as false.
                             bool possible = false; // Reset variable.
 
                             // For each possible module.
-                            for (int k = 0; k < generationModules.Count; k++)
+                            for (int neighbourSlotModule = 0; neighbourSlotModule < generationModules.Count; neighbourSlotModule++)
                             {
                                 // If the opposite face of the adjacent block is possible.
-                                if (generation[adjacent, opposite, j, k])
+                                if (generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule])
                                 {
                                     possible = true; // Mark the opposite face of the adjacent block as possible.
                                     break; // Break the loop.
@@ -383,7 +389,7 @@ namespace WFCGenerator
                             // If the opposite face of the adjacent block is not a possible match.
                             if (!possible)
                             {
-                                await Propagate(adjacent, j); // Re-run this function to propagate the algorithm with the next possible module.
+                                await Propagate(currentSlot, slotModule); // Re-run this function to propagate the algorithm with the next possible module.
                             }
                         }
                     }
@@ -400,16 +406,35 @@ namespace WFCGenerator
         /// <summary>
         /// Collapse the wave function algorithm.
         /// </summary>
-        void Collapse(int index)
+        void Collapse(int slotNumber)
         {
             int module = -1; // Reset variable.
+
+            // int randomModule = 0;
 
             // For each module.
             for (int i = 0; i < generationModules.Count; i++)
             {
-                // If the module is possible.
-                if (possibilities[index, i])
+                // If the module is possible. Possibilities have been reduced to only one at this point.
+                if (possibilities[slotNumber, i])
                 {
+                    // if (generationModules[i].probability == 1)
+                    // {
+                    //     module = i;
+                    //     break;
+                    // }
+                    // else
+                    // {
+                    //     float tempRNG = Random.Range(0, generationModules[i].probability * 100);
+
+                    //     if (tempRNG > randomModule)
+                    //     {
+                    //         randomModule = i;
+                    //     }
+
+                    //     module = randomModule; // Set the module to the module index.
+                    // }
+
                     module = i; // Set the module to the module index.
                     break; // Break the loop.
                 }
@@ -423,7 +448,7 @@ namespace WFCGenerator
                 return;
             }
 
-            InstantiatePrefabs(index, module);
+            InstantiatePrefabs(slotNumber, module);
         }
 
         /// <summary>
@@ -434,15 +459,16 @@ namespace WFCGenerator
             // If a module was set.
             if (generationModules[module].prefab != null)
             {
-                int rng = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
+                int randomPrefab = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
+
 
                 GameObject item; // Instantiate a new game object.
 
-                if (generationModules[module].prefab[rng] != null)
+                if (generationModules[module].prefab[randomPrefab] != null)
                 {
                     // Instantiate the prefab.
-                    item = GameObject.Instantiate(generationModules[module].prefab[rng], gridRoot); // Instantiate the module prefab at the root transform.
-                    item.name = generationModules[module].prefab[rng].name;
+                    item = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], gridRoot); // Instantiate the module prefab at the root transform.
+                    item.name = generationModules[module].prefab[randomPrefab].name;
                 }
                 else
                 {
@@ -460,7 +486,12 @@ namespace WFCGenerator
 
                 if (generationModules[module].rotate180)
                 {
-                    item.transform.rotation = Quaternion.Euler(-90, 180, 180);
+                    item.transform.rotation = Quaternion.Euler(-90, 180, 0); // Rotate the prefab 180 degrees.
+                }
+
+                if (generationModules[module].randomRotation)
+                {
+                    item.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0); // Rotate the prefab randomly.
                 }
             }
         }

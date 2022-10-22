@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 3WayCornerForward
   m_EditorClassIdentifier: 
   prefab:
-  - {fileID: 2241586227226243964, guid: 7a2d738851e5f5444aec94ba10837f04, type: 3}
+  - {fileID: 6238910409502887903, guid: bfa20d7c1bb349648b4d106a7e69bca3, type: 3}
   forward:
     name: 0
   right:
@@ -27,3 +27,10 @@ MonoBehaviour:
   below:
     name: 
   rotate180: 0
+  randomRotation: 0
+  banForward: 0
+  banLeft: 0
+  banModules: 1
+  bannedModules:
+  - {fileID: 11400000, guid: d1481c16af5b70043bc81ac0f4c36d7b, type: 2}
+  probability: 0
