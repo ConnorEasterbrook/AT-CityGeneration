@@ -36,4 +36,4 @@ MonoBehaviour:
   banModules: 1
   bannedModules:
   - {fileID: 11400000, guid: 8e899d932c502384ca07b80fb6050e14, type: 2}
-  probability: 0
+  probability: 1

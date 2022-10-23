@@ -32,4 +32,4 @@ MonoBehaviour:
   banLeft: 0
   banModules: 1
   bannedModules: []
-  probability: 0
+  probability: 0.2

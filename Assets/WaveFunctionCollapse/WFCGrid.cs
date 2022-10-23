@@ -55,7 +55,7 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
-                        await Observe(index);
+                        await FindPossibleModules(index);
                     }
                     else
                     {
@@ -297,31 +297,56 @@ namespace WFCGenerator
         /// <summary>
         /// Begin the process of collapsing the wave function algorithm.
         /// </summary>
-        async Task Observe(int index)
+        async Task FindPossibleModules(int slotNumber)
         {
             List<int> candidates = new List<int>(); // Instantiate a list to contain the possible module generations.
 
-            float result = -1; // Reset variable.
-            float min = float.MaxValue; // Reset variable.
+            int result = -1; // Reset variable.
+            // float min = float.MaxValue; // Reset variable.
+
+            int randomModule = 0;
 
             // For each module.
-            for (int i = 0; i < generationModules.Count; i++)
+            for (int module = 0; module < generationModules.Count; module++)
             {
                 // If the module is possible.
-                if (possibilities[index, i])
+                if (possibilities[slotNumber, module])
                 {
-                    float rng = Random.Range(0f, 1f); // Get a random number between 0 and 1.
+                    int tempRNG = Mathf.RoundToInt(Random.Range(0, generationModules[module].probability * 100));
+                    // Debug.Log("Module: " + generationModules[module].name + " RNG: " + tempRNG);
 
                     // If the random number is less than the minimum
-                    if (rng < min)
+                    if (tempRNG > randomModule)
                     {
-                        min = rng; // Set the minimum to the random number.
-                        result = i; // Set the result to the module index.
+                        randomModule = tempRNG; // Set the minimum to the random number.
+                        result = module; // Set the result to the module index.
+                        // Debug.Log("Module " + module + " has been selected with a random number of " + randomModule);
                     }
 
-                    candidates.Add(i); // Add the module index to the list of possible modules.
+                    candidates.Add(module); // Add the module index to the list of possible modules.
+
+
+                    // if (generationModules[module].probability == 1)
+                    // {
+                    //     result = module;
+                    //     // break;
+                    // }
+                    // else
+                    // {
+                    //     float tempRNG = Random.Range(0, generationModules[module].probability * 100);
+
+                    //     if (tempRNG > randomModule)
+                    //     {
+                    //         randomModule = module;
+                    //     }
+
+                    //     result = randomModule; // Set the module to the module index.
+                    // }
                 }
             }
+
+            // await Propagate(slotNumber, result); // Propagate the module
+
 
             // For each module in the list of possible modules.
             foreach (int candidate in candidates)
@@ -329,7 +354,7 @@ namespace WFCGenerator
                 // If the module does not match the result.
                 if (candidate != result)
                 {
-                    await Propagate(index, candidate); // Propagate the module
+                    await Propagate(slotNumber, candidate); // Propagate the module
                 }
             }
         }
@@ -337,7 +362,7 @@ namespace WFCGenerator
         /// <summary>
         /// Propagate the Wave Function Collapse algorithm.
         /// </summary>
-        async Task Propagate(int index, int module)
+        async Task Propagate(int slotNumber, int module)
         {
             // Slow generation to be shown, if delay has been enabled.
             if (WFCGenerator.delay > 0 && ++ticks >= WFCGenerator.delay)
@@ -347,14 +372,15 @@ namespace WFCGenerator
             }
 
             // If the module is not possible.
-            if (entropy[index] <= 1)
+            if (entropy[slotNumber] <= 1)
             {
                 failed = true;
+                Debug.Log("Module is not possible");
                 return;
             }
 
-            possibilities[index, module] = false; // Mark the possible module as false.
-            entropy[index]--; // Decrease the entropy of the block.
+            possibilities[slotNumber, module] = false; // Mark the possible module as false.
+            entropy[slotNumber]--; // Decrease the entropy of the block.
 
             // For each possible face of a slot.
             for (int slotFaces = 0; slotFaces < 6; slotFaces++)
@@ -362,10 +388,10 @@ namespace WFCGenerator
                 // For each module.
                 for (int slotModule = 0; slotModule < generationModules.Count; slotModule++)
                 {
-                    generation[index, slotFaces, module, slotModule] = false; // Mark the slot face of the module as false.
+                    generation[slotNumber, slotFaces, module, slotModule] = false; // Mark the slot face of the module as false.
 
                     // If the slot face is adjacent to another block.
-                    if (GetAdjacent(index, slotFaces, out int currentSlot))
+                    if (GetAdjacent(slotNumber, slotFaces, out int currentSlot))
                     {
                         int neighbourSlot = _OPPOSITE[slotFaces]; // Get the opposite face of the slot face.
 
@@ -397,9 +423,9 @@ namespace WFCGenerator
             }
 
             // If the entropy of the block is 1.
-            if (entropy[index] == 1)
+            if (entropy[slotNumber] == 1)
             {
-                Collapse(index); // Collapse the block. Fill the slot.
+                Collapse(slotNumber); // Collapse the block. Fill the slot.
             }
         }
 
