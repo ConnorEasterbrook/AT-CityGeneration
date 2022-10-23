@@ -30,6 +30,6 @@ MonoBehaviour:
   randomRotation: 0
   banForward: 1
   banLeft: 0
-  banModules: 1
+  banModules: 0
   bannedModules: []
   probability: 0.2

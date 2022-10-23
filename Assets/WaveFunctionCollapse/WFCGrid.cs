@@ -33,9 +33,6 @@ namespace WFCGenerator
         private int[] entropy;
         private bool failed;
 
-        // Private vanity variables
-        private int ticks;
-
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
@@ -55,7 +52,10 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
-                        await FindPossibleModules(index);
+                        // Slow generation to be shown, if delay has been enabled.
+                        await Task.Delay(WFCGenerator.delay * 10);
+
+                        FindPossibleModules(index);
                     }
                     else
                     {
@@ -88,7 +88,6 @@ namespace WFCGenerator
             // Reset variables.
             failed = false;
             generation = null;
-            ticks = 0;
         }
 
         /// <summary>
@@ -295,16 +294,14 @@ namespace WFCGenerator
         }
 
         /// <summary>
-        /// Begin the process of collapsing the wave function algorithm.
+        /// Begin the process of collapsing the wave function algorithm by finding the possible modules.
         /// </summary>
-        async Task FindPossibleModules(int slotNumber)
+        void FindPossibleModules(int slotNumber)
         {
             List<int> candidates = new List<int>(); // Instantiate a list to contain the possible module generations.
 
             int result = -1; // Reset variable.
-            // float min = float.MaxValue; // Reset variable.
-
-            int randomModule = 0;
+            int randomModule = 0; // Set randomModule to the first module by default in case there are no possible modules.
 
             // For each module.
             for (int module = 0; module < generationModules.Count; module++)
@@ -313,40 +310,17 @@ namespace WFCGenerator
                 if (possibilities[slotNumber, module])
                 {
                     int tempRNG = Mathf.RoundToInt(Random.Range(0, generationModules[module].probability * 100));
-                    // Debug.Log("Module: " + generationModules[module].name + " RNG: " + tempRNG);
 
                     // If the random number is less than the minimum
                     if (tempRNG > randomModule)
                     {
                         randomModule = tempRNG; // Set the minimum to the random number.
                         result = module; // Set the result to the module index.
-                        // Debug.Log("Module " + module + " has been selected with a random number of " + randomModule);
                     }
 
                     candidates.Add(module); // Add the module index to the list of possible modules.
-
-
-                    // if (generationModules[module].probability == 1)
-                    // {
-                    //     result = module;
-                    //     // break;
-                    // }
-                    // else
-                    // {
-                    //     float tempRNG = Random.Range(0, generationModules[module].probability * 100);
-
-                    //     if (tempRNG > randomModule)
-                    //     {
-                    //         randomModule = module;
-                    //     }
-
-                    //     result = randomModule; // Set the module to the module index.
-                    // }
                 }
             }
-
-            // await Propagate(slotNumber, result); // Propagate the module
-
 
             // For each module in the list of possible modules.
             foreach (int candidate in candidates)
@@ -354,7 +328,7 @@ namespace WFCGenerator
                 // If the module does not match the result.
                 if (candidate != result)
                 {
-                    await Propagate(slotNumber, candidate); // Propagate the module
+                    Propagate(slotNumber, candidate); // Propagate the module
                 }
             }
         }
@@ -362,15 +336,8 @@ namespace WFCGenerator
         /// <summary>
         /// Propagate the Wave Function Collapse algorithm.
         /// </summary>
-        async Task Propagate(int slotNumber, int module)
+        void Propagate(int slotNumber, int module)
         {
-            // Slow generation to be shown, if delay has been enabled.
-            if (WFCGenerator.delay > 0 && ++ticks >= WFCGenerator.delay)
-            {
-                ticks = 0;
-                await Task.Delay(10);
-            }
-
             // If the module is not possible.
             if (entropy[slotNumber] <= 1)
             {
@@ -415,7 +382,7 @@ namespace WFCGenerator
                             // If the opposite face of the adjacent block is not a possible match.
                             if (!possible)
                             {
-                                await Propagate(currentSlot, slotModule); // Re-run this function to propagate the algorithm with the next possible module.
+                                Propagate(currentSlot, slotModule); // Re-run this function to propagate the algorithm with the next possible module.
                             }
                         }
                     }
@@ -436,31 +403,12 @@ namespace WFCGenerator
         {
             int module = -1; // Reset variable.
 
-            // int randomModule = 0;
-
             // For each module.
             for (int i = 0; i < generationModules.Count; i++)
             {
                 // If the module is possible. Possibilities have been reduced to only one at this point.
                 if (possibilities[slotNumber, i])
                 {
-                    // if (generationModules[i].probability == 1)
-                    // {
-                    //     module = i;
-                    //     break;
-                    // }
-                    // else
-                    // {
-                    //     float tempRNG = Random.Range(0, generationModules[i].probability * 100);
-
-                    //     if (tempRNG > randomModule)
-                    //     {
-                    //         randomModule = i;
-                    //     }
-
-                    //     module = randomModule; // Set the module to the module index.
-                    // }
-
                     module = i; // Set the module to the module index.
                     break; // Break the loop.
                 }

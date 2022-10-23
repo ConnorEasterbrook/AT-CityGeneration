@@ -42,7 +42,7 @@ namespace WFCGenerator
     public class WFCGeneratorEditor : Editor
     {
         private GUIStyle headerStyle = new GUIStyle();
-        private float generationDelay = 0;
+        private int generationDelay = 0;
 
         public override void OnInspectorGUI()
         {
@@ -51,8 +51,10 @@ namespace WFCGenerator
             WFCGenerator generator = (WFCGenerator)target;
 
             // Create a generation delay slider in the inspector.
-            generationDelay = EditorGUILayout.Slider("Delay", generationDelay, 0f, 1f);
-            WFCGenerator.delay = generationDelay > 0 ? Mathf.CeilToInt(10f / generationDelay) : 0; // If delay is 0, set delay to 0, otherwise implement a generation delay.
+            generationDelay = EditorGUILayout.IntSlider("Delay", generationDelay, 0, 10);
+            WFCGenerator.delay = generationDelay;
+
+            // WFCGenerator.delay = generationDelay > 0 ? Mathf.CeilToInt(10f / generationDelay) : 0; // If delay is 0, set delay to 0, otherwise implement a generation delay.
 
             // Create Generate and Clear buttons in the inspector, next to each other.
             EditorGUILayout.BeginHorizontal();
