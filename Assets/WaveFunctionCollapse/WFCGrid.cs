@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -54,6 +55,9 @@ namespace WFCGenerator
                     {
                         // Slow generation to be shown, if delay has been enabled.
                         await Task.Delay(WFCGenerator.delay * 10);
+
+                        // Thread t = new Thread(() => FindPossibleModules(index));
+                        // t.Start();
 
                         FindPossibleModules(index);
                     }
@@ -435,7 +439,6 @@ namespace WFCGenerator
             {
                 int randomPrefab = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
 
-
                 GameObject item; // Instantiate a new game object.
 
                 if (generationModules[module].prefab[randomPrefab] != null)
@@ -456,16 +459,29 @@ namespace WFCGenerator
                 int y = Mathf.RoundToInt(blockCoordinates.y); // Get the y coordinate of the block.
                 int z = Mathf.RoundToInt(blockCoordinates.z); // Get the z coordinate of the block.
 
-                item.transform.localPosition = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
+                if (generationModules[module].randomPlacement)
+                {
+                    float randX = Random.Range(-5, 5);
+                    float randZ = Random.Range(-5, 5);
+                    Vector3 position = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
+                    position.x += randX;
+                    position.z += randZ;
+                    item.transform.localPosition = position; // Set the position of the module prefab to the open slot.
+                }
+                else
+                {
+                    item.transform.localPosition = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
+                }
+
 
                 if (generationModules[module].rotate180)
                 {
-                    item.transform.rotation = Quaternion.Euler(-90, 180, 0); // Rotate the prefab 180 degrees.
+                    item.transform.localRotation = Quaternion.Euler(-90, 180, 0); // Rotate the prefab 180 degrees.
                 }
 
                 if (generationModules[module].randomRotation)
                 {
-                    item.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0); // Rotate the prefab randomly.
+                    item.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0); // Rotate the prefab randomly.
                 }
             }
         }
@@ -497,7 +513,11 @@ namespace WFCGenerator
                 return;
             }
 
-            Gizmos.color = Color.red; // Set the Wave Function Collapse gizmo color to white.
+            // Gizmos.color = Color.black; // Set the Wave Function Collapse gizmo color to white.
+            GUIStyle style = new GUIStyle();
+            style.normal.textColor = Color.black;
+            style.fontSize = 20;
+            style.fontStyle = FontStyle.Bold;
 
             // For each slot on the grid.
             for (int x = 0; x < gridWidth; x++)
@@ -517,7 +537,7 @@ namespace WFCGenerator
 
                         Vector3 position = generator.transform.localPosition + GetPosition(x, y, z); // Get the position of the slot.
 
-                        Gizmos.DrawCube(position, Vector3.one * 2f * entropy / generationModules.Count); // Draw a cube at the slot position.
+                        Handles.Label(position, entropy.ToString(), style); // Draw the entropy of the slot.
                     }
                 }
             }

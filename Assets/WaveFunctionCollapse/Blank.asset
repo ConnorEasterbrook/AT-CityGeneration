@@ -47,3 +47,4 @@ MonoBehaviour:
   bannedModules:
   - {fileID: 11400000, guid: 7e530fcaaf081754690ab854bd05f84c, type: 2}
   probability: 1
+  randomPlacement: 1

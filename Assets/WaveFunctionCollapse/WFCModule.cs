@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 
 namespace WFCGenerator
 {
@@ -22,6 +21,7 @@ namespace WFCGenerator
         public bool banModules = false;
         public WFCModule[] bannedModules;
         [Range(0, 1)] public float probability = 1;
+        public bool randomPlacement = false;
 
         public bool ConnectsTo(WFCModule other, int direction)
         {

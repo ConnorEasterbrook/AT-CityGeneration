@@ -36,3 +36,4 @@ MonoBehaviour:
   banModules: 0
   bannedModules: []
   probability: 1
+  randomPlacement: 0
