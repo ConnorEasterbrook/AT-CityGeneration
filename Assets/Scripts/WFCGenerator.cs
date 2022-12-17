@@ -36,12 +36,23 @@ namespace WFCGenerator
         public void CallGenerate()
         {
             grid.Clear(gameObject);
+            Vector2 mapSize = new Vector2();
 
-            for (int i = 0; i < chunkAmount; i++)
+            for (int x = 0; x < chunkAmount; x++)
             {
-                Debug.Log("Generating chunk " + (i + 1) + " of " + chunkAmount);
-                grid.Generate(gameObject);
+                for (int y = 0; y < chunkAmount; y++)
+                {
+                    mapSize.x = x * grid.gridWidth;
+                    mapSize.y = y * grid.gridLength;
+                    grid.Generate(gameObject, mapSize);
+                }
             }
+
+            // for (int i = 0; i < chunkAmount; i++)
+            // {
+            //     Debug.Log("Generating chunk " + (i + 1) + " of " + chunkAmount);
+            //     grid.Generate(gameObject);
+            // }
             // grid.Generate(gameObject);
         }
 

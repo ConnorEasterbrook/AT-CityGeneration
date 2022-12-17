@@ -21,7 +21,7 @@ namespace WFCGenerator
         public int gridLength = 15; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
         public float heightOffset = 2.5f; // The height offset for each slot in the grid.
-        // public int chunkAmount = 1; // The amount of chunks to generate.
+        public Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
 
         // Private generation variables.
         static private readonly int _MAX_ATTEMPTS = 5; // Maximum number of attempts to generate a grid.
@@ -37,8 +37,9 @@ namespace WFCGenerator
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public void Generate(GameObject generator)
+        public void Generate(GameObject generator, Vector2 gridPos)
         {
+            gridOffset = gridPos;
             Initialize(generator); // Initialize the wave function collapse algorithm.
 
             // For each iteration, if generation failed, clear the grid and re-initialize the wave function collapse algorithm.
@@ -83,7 +84,8 @@ namespace WFCGenerator
             // Organise in inspector.
             gridRoot = new GameObject(name).transform; // Create a new game object with the name of the grid.
             gridRoot.parent = generator.transform;  // Set the parent of the game object to the generator.
-            gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
+            // gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
+            gridRoot.position = new Vector3(gridOffset.x * (slotSize), 0, gridOffset.y * (slotSize));
             gridRoot.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
 
             // Initialize variables.
