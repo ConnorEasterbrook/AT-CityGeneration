@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -24,9 +22,9 @@ namespace WFCGenerator
         public Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
 
         // Private generation variables.
-        static private readonly int _MAX_ATTEMPTS = 5; // Maximum number of attempts to generate a grid.
-        static private readonly int _MAX_ITERATIONS = 1000; // Maximum number of iterations to generate a grid.
-        static private readonly int[] _OPPOSITE = { 2, 3, 0, 1, 5, 4 }; // Opposite directions. 0-2, 1-3, 2-0, 3-1, 4-5, 5-4. North, East, South, West, Above, Below.
+        private static readonly int _MAX_ATTEMPTS = 10; // Maximum entropy to generate a grid.
+        private static readonly int _MAX_ITERATIONS = 1000; // Maximum number of iterations to generate a grid.
+        private static readonly int[] _OPPOSITE = { 2, 3, 0, 1, 5, 4 }; // Opposite directions. 0-2, 1-3, 2-0, 3-1, 4-5, 5-4. North, East, South, West, Above, Below.
         private Vector3 slotOffset;
         private Transform gridRoot;
         private bool[,,,] generation;
@@ -34,30 +32,45 @@ namespace WFCGenerator
         private int[] entropy;
         private bool failed;
 
+
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
         public void Generate(GameObject generator, Vector2 gridPos)
         {
             gridOffset = gridPos;
-            Initialize(generator); // Initialize the wave function collapse algorithm.
 
-            // For each iteration, if generation failed, clear the grid and re-initialize the wave function collapse algorithm.
-            for (int iteration = 0; iteration < _MAX_ITERATIONS; iteration++)
+            for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
-                int index = NextSlot(); // Get the next slot.
+                Initialize(generator); // Initialize the wave function collapse algorithm.
 
-                // If next slot is found, propagate the wave function collapse algorithm.
-                if (index >= 0)
+                // For each iteration, if generation failed, clear the grid and re-initialize the wave function collapse algorithm.
+                for (int iteration = 0; iteration < _MAX_ITERATIONS; iteration++)
                 {
-                    FindPossibleModules(index);
+                    int index = NextSlot(); // Get the next slot.
+
+                    // If next slot is found, propagate the wave function collapse algorithm.
+                    if (index >= 0)
+                    {
+                        FindPossibleModules(index);
+                    }
+                    else
+                    {
+                        // If the next slot is not found, generation is successful.
+                        return;
+                    }
                 }
-                else
+
+                if (!failed)
                 {
-                    // If the next slot is not found, generation is successful.
-                    return;
+                    break; // If generation is successful, break the loop.
                 }
             }
+        }
+
+        public Transform returnGridRoot()
+        {
+            return gridRoot;
         }
 
         /// <summary>
@@ -250,7 +263,6 @@ namespace WFCGenerator
         /// </summary>
         int NextSlot()
         {
-            // If finding the next slot has failed, mark the generation as complete.
             if (failed)
             {
                 return -1;

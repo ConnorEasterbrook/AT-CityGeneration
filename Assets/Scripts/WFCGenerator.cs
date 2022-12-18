@@ -13,6 +13,7 @@ namespace WFCGenerator
         public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
         public int chunkAmount = 1;
+        // private List<Transform> grids = new List<Transform>();
 
         private void Start()
         {
@@ -47,13 +48,6 @@ namespace WFCGenerator
                     grid.Generate(gameObject, mapSize);
                 }
             }
-
-            // for (int i = 0; i < chunkAmount; i++)
-            // {
-            //     Debug.Log("Generating chunk " + (i + 1) + " of " + chunkAmount);
-            //     grid.Generate(gameObject);
-            // }
-            // grid.Generate(gameObject);
         }
 
         private void OnEnable()
