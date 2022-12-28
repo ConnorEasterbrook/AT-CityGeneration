@@ -13,7 +13,7 @@ namespace WFCGenerator
         public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
         public int chunkAmount = 1;
-        // private List<Transform> grids = new List<Transform>();
+        public GameObject mapParent;
 
         private void Start()
         {
@@ -36,7 +36,12 @@ namespace WFCGenerator
 
         public void CallGenerate()
         {
-            grid.Clear(gameObject);
+            if (mapParent == null)
+            {
+                mapParent = gameObject;
+            }
+
+            grid.Clear(mapParent);
             Vector2 mapSize = new Vector2();
 
             for (int x = 0; x < chunkAmount; x++)
@@ -45,14 +50,14 @@ namespace WFCGenerator
                 {
                     mapSize.x = x * grid.gridWidth;
                     mapSize.y = y * grid.gridLength;
-                    grid.Generate(gameObject, mapSize);
+                    grid.Generate(gameObject, mapSize, mapParent);
                 }
             }
         }
 
         private void OnEnable()
         {
-            grid.Clear(gameObject);
+            grid.Clear(mapParent);
         }
     }
 

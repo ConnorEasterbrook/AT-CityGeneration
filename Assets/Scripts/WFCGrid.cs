@@ -36,13 +36,13 @@ namespace WFCGenerator
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public void Generate(GameObject generator, Vector2 gridPos)
+        public void Generate(GameObject generator, Vector2 gridPos, GameObject mapParent)
         {
             gridOffset = gridPos;
 
             for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
-                Initialize(generator); // Initialize the wave function collapse algorithm.
+                Initialize(generator, mapParent); // Initialize the wave function collapse algorithm.
 
                 // For each iteration, if generation failed, clear the grid and re-initialize the wave function collapse algorithm.
                 for (int iteration = 0; iteration < _MAX_ITERATIONS; iteration++)
@@ -76,12 +76,12 @@ namespace WFCGenerator
         /// <summary>
         /// Clear all variables and gameobjects.
         /// </summary>
-        public void Clear(GameObject generator)
+        public void Clear(GameObject mapParent)
         {
             // Delete all children objects.
-            while (generator.transform.childCount != 0)
+            while (mapParent.transform.childCount != 0)
             {
-                GameObject.DestroyImmediate(generator.transform.GetChild(0).gameObject);
+                GameObject.DestroyImmediate(mapParent.transform.GetChild(0).gameObject);
             }
 
             // Reset variables.
@@ -92,11 +92,11 @@ namespace WFCGenerator
         /// <summary>
         /// Initialize the wave function collapse algorithm.
         /// </summary>
-        void Initialize(GameObject generator)
+        void Initialize(GameObject generator, GameObject mapParent)
         {
             // Organise in inspector.
             gridRoot = new GameObject(name).transform; // Create a new game object with the name of the grid.
-            gridRoot.parent = generator.transform;  // Set the parent of the game object to the generator.
+            gridRoot.parent = mapParent.transform;  // Set the parent of the game object to the generator.
             // gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
             gridRoot.position = new Vector3(gridOffset.x * (slotSize), 0, gridOffset.y * (slotSize));
             gridRoot.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
