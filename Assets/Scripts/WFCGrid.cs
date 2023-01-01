@@ -15,10 +15,10 @@ namespace WFCGenerator
 
         [Header("Grid")]
         public float slotSize = 10f; // Size of each block.
-        public int gridWidth = 10; // Width of the grid.
-        public int gridLength = 15; // Length of the grid.
+        public int gridWidth = 16; // Width of the grid.
+        public int gridLength = 16; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
-        public float heightOffset = 2.5f; // The height offset for each slot in the grid.
+        public float heightOffset = 0; // The height offset for each slot in the grid.
         private Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
 
         // Private generation variables.
@@ -36,9 +36,10 @@ namespace WFCGenerator
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public void Generate(GameObject generator, Vector2 gridPos, GameObject mapParent)
+        public void Generate(GameObject generator, Vector2 gridPos, GameObject mapParent, float _slotSize)
         {
             gridOffset = gridPos;
+            slotSize = _slotSize;
 
             for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
@@ -93,9 +94,9 @@ namespace WFCGenerator
             chunk = new GameObject(); // Create a new game object with the name of the grid.
             chunk.transform.parent = mapParent.transform;  // Set the parent of the game object to the generator.
             // gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
-            chunk.transform.position = new Vector3(gridOffset.x * (slotSize), 0, gridOffset.y * (slotSize));
+            chunk.transform.position = new Vector3(gridOffset.x * slotSize, 0, gridOffset.y * slotSize);
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
-            chunk.name = name + " " + (gridOffset / 16); // Set the name of the game object to the name of the grid and the position of the grid.
+            chunk.name = name + " " + (gridOffset / gridWidth); // Set the name of the game object to the name of the grid and the position of the grid.
 
             // Initialize variables.
             slotOffset = new Vector3(gridWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridLength * slotSize / 2f); // Initialize the block offset.
@@ -497,6 +498,11 @@ namespace WFCGenerator
             );
 
             return position;
+        }
+
+        public GameObject ReturnChunk()
+        {
+            return chunk;
         }
 
         /// <summary>

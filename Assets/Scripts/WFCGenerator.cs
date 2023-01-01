@@ -6,19 +6,20 @@ namespace WFCGenerator
 {
     public class WFCGenerator : MonoBehaviour
     {
-        public WFCGrid grid;
+        public WFCGrid chunkGrid;
 
         [Header("Visual Options")]
         public bool drawGizmos = true;
         public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
         public int chunkAmount = 1;
+        public float slotSize = 10;
         public GameObject mapParent;
         public GameObject player;
+        private Dictionary<Vector2, GameObject> chunks = new Dictionary<Vector2, GameObject>();
 
         private void Start()
         {
-            // grid.Generate(gameObject);
             CallGenerate();
         }
 
@@ -39,7 +40,7 @@ namespace WFCGenerator
 
             if (drawGenerationMarkers)
             {
-                grid.DrawGenMarkers(gameObject);
+                chunkGrid.DrawGenMarkers(gameObject);
             }
         }
 
@@ -50,41 +51,25 @@ namespace WFCGenerator
                 mapParent = gameObject;
             }
 
-            grid.Clear(mapParent);
+            chunkGrid.Clear(mapParent);
+            chunks.Clear();
+
             Vector2 mapSize = new Vector2();
-
-            // for (int x = 0; x < chunkAmount; x++)
-            // {
-            //     for (int y = 0; y < chunkAmount; y++)
-            //     {
-            //         mapSize.x = x * grid.gridWidth;
-            //         mapSize.y = y * grid.gridLength;
-            //         grid.Generate(gameObject, mapSize, mapParent);
-            //     }
-            // }
-
-            // for (int i = 0; i < chunkAmount; i++)
-            // {
-            //     mapSize.x = i * grid.gridWidth;
-            //     mapSize.y = i * grid.gridLength;
 
             for (int x = -chunkAmount; x < chunkAmount + 1; x++)
             {
                 for (int y = -chunkAmount; y < chunkAmount + 1; y++)
                 {
-                    mapSize.x = x * grid.gridWidth;
-                    mapSize.y = y * grid.gridLength;
-                    grid.Generate(gameObject, mapSize, mapParent);
+                    mapSize.x = x * chunkGrid.gridWidth;
+                    mapSize.y = y * chunkGrid.gridLength;
+                    chunkGrid.Generate(gameObject, mapSize, mapParent, slotSize);
+
+                    Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize);
+
+                    chunkGrid.ReturnChunk().AddComponent<WFCChunk>().player = player;
+                    chunks.Add(chunkPos, chunkGrid.ReturnChunk());
                 }
             }
-
-            //     grid.Generate(gameObject, mapSize, mapParent);
-            // }
-        }
-
-        private void OnEnable()
-        {
-            grid.Clear(mapParent);
         }
     }
 
@@ -115,7 +100,7 @@ namespace WFCGenerator
 
             if (GUILayout.Button("Clear"))
             {
-                generator.grid.Clear(generator.mapParent);
+                generator.chunkGrid.Clear(generator.mapParent);
             }
             EditorGUILayout.EndHorizontal();
         }

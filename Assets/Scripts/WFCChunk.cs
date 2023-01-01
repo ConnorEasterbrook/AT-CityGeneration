@@ -26,7 +26,7 @@ using UnityEngine;
 
 public class WFCChunk : MonoBehaviour
 {
-    private GameObject player;
+    public GameObject player;
 
     public WFCChunk(GameObject _player)
     {
@@ -42,9 +42,9 @@ public class WFCChunk : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Vector3.Distance(player.transform.position, transform.position) > 100)
+        if (Vector3.Distance(player.transform.position, transform.position) > 200)
         {
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 }
