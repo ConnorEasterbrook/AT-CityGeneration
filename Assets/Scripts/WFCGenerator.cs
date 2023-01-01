@@ -12,13 +12,22 @@ namespace WFCGenerator
         public bool drawGizmos = true;
         public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
-        public int chunkAmount = 1;
+        // public int chunkAmount = 1;
         public GameObject mapParent;
+        public GameObject player;
 
         private void Start()
         {
             // grid.Generate(gameObject);
             CallGenerate();
+        }
+
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                CallGenerate();
+            }
         }
 
         void OnDrawGizmos()
@@ -44,15 +53,33 @@ namespace WFCGenerator
             grid.Clear(mapParent);
             Vector2 mapSize = new Vector2();
 
-            for (int x = 0; x < chunkAmount; x++)
+            // for (int x = 0; x < chunkAmount; x++)
+            // {
+            //     for (int y = 0; y < chunkAmount; y++)
+            //     {
+            //         mapSize.x = x * grid.gridWidth;
+            //         mapSize.y = y * grid.gridLength;
+            //         grid.Generate(gameObject, mapSize, mapParent);
+            //     }
+            // }
+
+            // for (int i = 0; i < chunkAmount; i++)
+            // {
+            //     mapSize.x = i * grid.gridWidth;
+            //     mapSize.y = i * grid.gridLength;
+
+            for (int x = -1; x < 2; x++)
             {
-                for (int y = 0; y < chunkAmount; y++)
+                for (int y = -1; y < 2; y++)
                 {
                     mapSize.x = x * grid.gridWidth;
                     mapSize.y = y * grid.gridLength;
                     grid.Generate(gameObject, mapSize, mapParent);
                 }
             }
+
+            //     grid.Generate(gameObject, mapSize, mapParent);
+            // }
         }
 
         private void OnEnable()
