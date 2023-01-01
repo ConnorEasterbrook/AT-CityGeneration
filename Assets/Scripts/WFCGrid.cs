@@ -8,7 +8,7 @@ namespace WFCGenerator
     public class WFCGrid
     {
         [Header("Identity")]
-        public string name = "WFCGrid"; // Name of the grid.
+        public string name = "Chunk"; // Name of each chunk.
 
         [Header("Variables")]
         public List<WFCModule> generationModules; // List of modules.
@@ -19,14 +19,14 @@ namespace WFCGenerator
         public int gridLength = 15; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
         public float heightOffset = 2.5f; // The height offset for each slot in the grid.
-        public Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
+        private Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
 
         // Private generation variables.
         private static readonly int _MAX_ATTEMPTS = 10; // Maximum entropy to generate a grid.
         private static readonly int _MAX_ITERATIONS = 1000; // Maximum number of iterations to generate a grid.
         private static readonly int[] _OPPOSITE = { 2, 3, 0, 1, 5, 4 }; // Opposite directions. 0-2, 1-3, 2-0, 3-1, 4-5, 5-4. North, East, South, West, Above, Below.
         private Vector3 slotOffset;
-        private Transform gridRoot;
+        private GameObject chunk;
         private bool[,,,] generation;
         private bool[,] possibilities;
         private int[] entropy;
@@ -68,11 +68,6 @@ namespace WFCGenerator
             }
         }
 
-        public Transform returnGridRoot()
-        {
-            return gridRoot;
-        }
-
         /// <summary>
         /// Clear all variables and gameobjects.
         /// </summary>
@@ -95,11 +90,12 @@ namespace WFCGenerator
         void Initialize(GameObject generator, GameObject mapParent)
         {
             // Organise in inspector.
-            gridRoot = new GameObject(name).transform; // Create a new game object with the name of the grid.
-            gridRoot.parent = mapParent.transform;  // Set the parent of the game object to the generator.
+            chunk = new GameObject(); // Create a new game object with the name of the grid.
+            chunk.transform.parent = mapParent.transform;  // Set the parent of the game object to the generator.
             // gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
-            gridRoot.position = new Vector3(gridOffset.x * (slotSize), 0, gridOffset.y * (slotSize));
-            gridRoot.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
+            chunk.transform.position = new Vector3(gridOffset.x * (slotSize), 0, gridOffset.y * (slotSize));
+            chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
+            chunk.name = name + " " + (gridOffset / 16); // Set the name of the game object to the name of the grid and the position of the grid.
 
             // Initialize variables.
             slotOffset = new Vector3(gridWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridLength * slotSize / 2f); // Initialize the block offset.
@@ -440,7 +436,7 @@ namespace WFCGenerator
                 if (generationModules[module].prefab[randomPrefab] != null)
                 {
                     // Instantiate the prefab.
-                    item = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], gridRoot); // Instantiate the module prefab at the root transform.
+                    item = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], chunk.transform); // Instantiate the module prefab at the root transform.
                     item.name = generationModules[module].prefab[randomPrefab].name + " | " + index; // Set the name of the prefab to the name of the prefab + the index of the slot.
                     // tempRotation = generationModules[module].prefab[randomPrefab].transform.localRotation.x;
                 }
@@ -448,7 +444,7 @@ namespace WFCGenerator
                 {
                     item = new GameObject();
                     item.name = "Empty | " + index;
-                    item.transform.parent = gridRoot.transform; // Set the parent of the prefab to the root transform.
+                    item.transform.parent = chunk.transform; // Set the parent of the prefab to the root transform.
                 }
 
                 Vector3 slotCoordinates = Reshape(index); // Get the x, y, and z coordinates of the slot.

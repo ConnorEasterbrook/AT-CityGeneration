@@ -12,7 +12,7 @@ namespace WFCGenerator
         public bool drawGizmos = true;
         public bool drawGenerationMarkers = true;
         public static int delay { get; set; }
-        // public int chunkAmount = 1;
+        public int chunkAmount = 1;
         public GameObject mapParent;
         public GameObject player;
 
@@ -68,9 +68,9 @@ namespace WFCGenerator
             //     mapSize.x = i * grid.gridWidth;
             //     mapSize.y = i * grid.gridLength;
 
-            for (int x = -1; x < 2; x++)
+            for (int x = -chunkAmount; x < chunkAmount + 1; x++)
             {
-                for (int y = -1; y < 2; y++)
+                for (int y = -chunkAmount; y < chunkAmount + 1; y++)
                 {
                     mapSize.x = x * grid.gridWidth;
                     mapSize.y = y * grid.gridLength;
@@ -115,7 +115,7 @@ namespace WFCGenerator
 
             if (GUILayout.Button("Clear"))
             {
-                generator.grid.Clear(generator.gameObject);
+                generator.grid.Clear(generator.mapParent);
             }
             EditorGUILayout.EndHorizontal();
         }
