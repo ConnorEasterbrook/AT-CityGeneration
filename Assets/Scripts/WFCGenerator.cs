@@ -6,7 +6,7 @@ namespace WFCGenerator
 {
     public class WFCGenerator : MonoBehaviour
     {
-        public WFCGrid chunkGrid;
+        public WFCChunk chunkGrid;
 
         [Header("Visual Options")]
         public bool drawGizmos = true;
@@ -16,7 +16,9 @@ namespace WFCGenerator
         public float slotSize = 10;
         public GameObject mapParent;
         public GameObject player;
+
         private Dictionary<Vector2, GameObject> chunks = new Dictionary<Vector2, GameObject>();
+        private List<GameObject> chunkList = new List<GameObject>();
 
         private void Start()
         {
@@ -28,6 +30,19 @@ namespace WFCGenerator
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 CallGenerate();
+            }
+
+            //! This is a very inefficient way of doing this, but it works for now. A possible solution would be to use a quadtree to store the chunks and only check the chunks in the player's view.
+            foreach (GameObject chunk in chunkList)
+            {
+                if (Vector3.Distance(player.transform.position, chunk.transform.position) > 200)
+                {
+                    chunk.SetActive(false);
+                }
+                else
+                {
+                    chunk.SetActive(true);
+                }
             }
         }
 
@@ -51,8 +66,7 @@ namespace WFCGenerator
                 mapParent = gameObject;
             }
 
-            chunkGrid.Clear(mapParent);
-            chunks.Clear();
+            ClearVariables();
 
             Vector2 mapSize = new Vector2();
 
@@ -66,10 +80,17 @@ namespace WFCGenerator
 
                     Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize);
 
-                    chunkGrid.ReturnChunk().AddComponent<WFCChunk>().player = player;
                     chunks.Add(chunkPos, chunkGrid.ReturnChunk());
+                    chunkList.Add(chunkGrid.ReturnChunk());
                 }
             }
+        }
+
+        private void ClearVariables()
+        {
+            chunkGrid.Clear(mapParent);
+            chunks.Clear();
+            chunkList.Clear();
         }
     }
 
