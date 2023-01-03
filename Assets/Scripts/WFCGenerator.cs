@@ -6,33 +6,34 @@ namespace WFCGenerator
 {
     public class WFCGenerator : MonoBehaviour
     {
-        public WFCChunk chunkGrid;
+        public WFCChunk chunkGrid; // The script that calculates each chunk generation, forming the map grid
 
         [Header("Visual Options")]
-        public bool drawGizmos = true;
-        public bool drawGenerationMarkers = true;
-        public static int delay { get; set; }
-        public int chunkAmount = 1;
-        public float slotSize = 10;
-        public GameObject mapParent;
-        public GameObject player;
+        public bool drawGizmos = true; // Draw the generation markers in the scene view
+        public bool drawGenerationMarkers = true; // Draw the generation markers in the scene view
+        // public static int delay { get; set; }
+        public int chunkAmount = 1; // The amount of chunks to generate in each direction from the center chunk
+        public float slotSize = 10; // The size of each slot in the grid
+        public GameObject mapParent; // The parent object of the map
+        public GameObject player; // The player object
 
-        private Dictionary<Vector2, GameObject> chunks = new Dictionary<Vector2, GameObject>();
-        private List<GameObject> chunkList = new List<GameObject>();
+        private Dictionary<Vector2, GameObject> chunks = new Dictionary<Vector2, GameObject>(); // A dictionary of all the chunks generated
+        private List<GameObject> chunkList = new List<GameObject>(); // A list of all the chunks generated
 
         private void Start()
         {
-            CallGenerate();
+            CallGenerate(); // Generate the map
         }
 
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                CallGenerate();
+                CallGenerate(); // Generate the map
             }
 
             //! This is a very inefficient way of doing this, but it works for now. A possible solution would be to use a quadtree to store the chunks and only check the chunks in the player's view.
+            // Check if the chunks are within the player's view distance, and disable them if they are not.
             foreach (GameObject chunk in chunkList)
             {
                 if (Vector3.Distance(player.transform.position, chunk.transform.position) > 200)
@@ -45,25 +46,28 @@ namespace WFCGenerator
                 }
             }
 
-            float chunkSize = chunkGrid.gridWidth * slotSize;
-            int currentChunkPosX = Mathf.RoundToInt(player.transform.position.x / chunkSize);
+            float chunkSize = chunkGrid.gridWidth * slotSize; // Calculate the size of each chunk
+
+            // Calculate the current chunk position
+            int currentChunkPosX = Mathf.RoundToInt(player.transform.position.x / chunkSize); 
             int currentChunkPosZ = Mathf.RoundToInt(player.transform.position.z / chunkSize);
-            int chunksInDistance = Mathf.RoundToInt(200 / chunkSize);
 
-            for (int zOffset = -chunksInDistance; zOffset < chunksInDistance; zOffset++)
+            int chunksInDistance = Mathf.RoundToInt(100 / chunkSize); // Calculate the distance of chunk generation from the player
+
+            // Generate chunks in a square around the player
+            for (int zOffset = -chunksInDistance; zOffset <= chunksInDistance; zOffset++)
             {
-                for (int xOffset = -chunksInDistance; xOffset < chunksInDistance; xOffset++)
+                for (int xOffset = -chunksInDistance; xOffset <= chunksInDistance; xOffset++)
                 {
-                    Vector2 currentChunkPos = new Vector2((currentChunkPosX + xOffset) * chunkSize, (currentChunkPosZ + zOffset) * chunkSize);
+                    Vector2 currentChunkPos = new Vector2((currentChunkPosX + xOffset) * chunkSize, (currentChunkPosZ + zOffset) * chunkSize); // Calculate the current chunk position
 
+                    // Generate a new chunk if it doesn't exist
                     if (!chunks.ContainsKey(currentChunkPos))
                     {
-                        Debug.Log("Generating new chunk at " + currentChunkPos + " Current Chunk Pos X: " + currentChunkPosX);
+                        chunkGrid.Generate(gameObject, currentChunkPos / 10, mapParent, slotSize); // Generate the chunk
 
-                        chunkGrid.Generate(gameObject, currentChunkPos / 10, mapParent, slotSize);
-
-                        chunks.Add(currentChunkPos, chunkGrid.ReturnChunk());
-                        chunkList.Add(chunkGrid.ReturnChunk());
+                        chunks.Add(currentChunkPos, chunkGrid.ReturnChunk()); // Add the chunk to the dictionary
+                        chunkList.Add(chunkGrid.ReturnChunk()); // Add the chunk to the list
                     }
                 }
             }
@@ -82,29 +86,33 @@ namespace WFCGenerator
             }
         }
 
+        /// <summary>
+        /// Generate the map.
+        /// </summary>
         public void CallGenerate()
         {
+            // If the map parent is null, set it to the game object this script is attached to.
             if (mapParent == null)
             {
                 mapParent = gameObject;
             }
 
-            ClearVariables();
+            ClearVariables(); // Clear the variables
 
             Vector2 mapSize = new Vector2();
 
+            // Generate the chunks. Start from negative chunkAmount and go to chunkAmount + 1, so that the center chunk is generated. 
             for (int x = -chunkAmount; x < chunkAmount + 1; x++)
             {
                 for (int y = -chunkAmount; y < chunkAmount + 1; y++)
                 {
                     mapSize.x = x * chunkGrid.gridWidth;
                     mapSize.y = y * chunkGrid.gridLength;
-                    chunkGrid.Generate(gameObject, mapSize, mapParent, slotSize);
+                    chunkGrid.Generate(gameObject, mapSize, mapParent, slotSize); // Pass the map size to the chunk grid script
 
-                    Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize);
-
-                    chunks.Add(chunkPos, chunkGrid.ReturnChunk());
-                    chunkList.Add(chunkGrid.ReturnChunk());
+                    Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize); // Calculate the chunk position
+                    chunks.Add(chunkPos, chunkGrid.ReturnChunk()); // Add the chunk to the dictionary
+                    chunkList.Add(chunkGrid.ReturnChunk()); // Add the chunk to the list
                 }
             }
         }
@@ -131,8 +139,8 @@ namespace WFCGenerator
             WFCGenerator generator = (WFCGenerator)target;
 
             // Create a generation delay slider in the inspector.
-            generationDelay = EditorGUILayout.IntSlider("Delay", generationDelay, 1, 100);
-            WFCGenerator.delay = generationDelay;
+            // generationDelay = EditorGUILayout.IntSlider("Delay", generationDelay, 1, 100);
+            // WFCGenerator.delay = generationDelay;
 
             // Create Generate and Clear buttons in the inspector, next to each other.
             EditorGUILayout.BeginHorizontal();

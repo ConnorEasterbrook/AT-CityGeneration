@@ -14,7 +14,7 @@ namespace WFCGenerator
         public List<WFCModule> generationModules; // List of modules.
 
         [Header("Grid")]
-        public float slotSize = 10f; // Size of each block.
+        private float slotSize = 10f; // Size of each block.
         public int gridWidth = 16; // Width of the grid.
         public int gridLength = 16; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
