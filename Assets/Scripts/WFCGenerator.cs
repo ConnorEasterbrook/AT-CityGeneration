@@ -44,6 +44,29 @@ namespace WFCGenerator
                     chunk.SetActive(true);
                 }
             }
+
+            float chunkSize = chunkGrid.gridWidth * slotSize;
+            int currentChunkPosX = Mathf.RoundToInt(player.transform.position.x / chunkSize);
+            int currentChunkPosZ = Mathf.RoundToInt(player.transform.position.z / chunkSize);
+            int chunksInDistance = Mathf.RoundToInt(200 / chunkSize);
+
+            for (int zOffset = -chunksInDistance; zOffset < chunksInDistance; zOffset++)
+            {
+                for (int xOffset = -chunksInDistance; xOffset < chunksInDistance; xOffset++)
+                {
+                    Vector2 currentChunkPos = new Vector2((currentChunkPosX + xOffset) * chunkSize, (currentChunkPosZ + zOffset) * chunkSize);
+
+                    if (!chunks.ContainsKey(currentChunkPos))
+                    {
+                        Debug.Log("Generating new chunk at " + currentChunkPos + " Current Chunk Pos X: " + currentChunkPosX);
+
+                        chunkGrid.Generate(gameObject, currentChunkPos / 10, mapParent, slotSize);
+
+                        chunks.Add(currentChunkPos, chunkGrid.ReturnChunk());
+                        chunkList.Add(chunkGrid.ReturnChunk());
+                    }
+                }
+            }
         }
 
         void OnDrawGizmos()
