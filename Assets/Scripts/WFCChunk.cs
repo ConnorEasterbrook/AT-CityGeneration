@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
 
@@ -31,6 +32,7 @@ namespace WFCGenerator
         private bool[,] possibilities;
         private int[] entropy;
         private bool failed;
+        private bool complete = true;
 
 
         /// <summary>
@@ -53,6 +55,7 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
+                        // await Task.Delay(100);
                         FindPossibleModules(index);
                     }
                     else
@@ -83,6 +86,7 @@ namespace WFCGenerator
             // Reset variables.
             failed = false;
             generation = null;
+            complete = false;
         }
 
         /// <summary>
@@ -544,6 +548,11 @@ namespace WFCGenerator
                     }
                 }
             }
+        }
+
+        public bool ReturnGenerationComplete()
+        {
+            return complete;
         }
     }
 }
