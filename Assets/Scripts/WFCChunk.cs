@@ -12,7 +12,7 @@ namespace WFCGenerator
         public string name = "Chunk"; // Name of each chunk.
 
         [Header("Variables")]
-        public List<WFCModule> generationModules; // List of modules.
+        private List<WFCModule> generationModules; // List of modules.
 
         [Header("Grid")]
         private float slotSize = 10f; // Size of each block.
@@ -33,14 +33,23 @@ namespace WFCGenerator
         private int[] entropy;
         private bool failed;
 
+        private GameObject generator;
+        private GameObject mapParent;
+        public WFCChunk(GameObject _generator, GameObject _mapParent, float _slotSize, List<WFCModule> _generationModules)
+        {
+            generator = _generator;
+            mapParent = _mapParent;
+            slotSize = _slotSize;
+            generationModules = _generationModules;
+        }
 
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public void Generate(GameObject generator, Vector2 gridPos, GameObject mapParent, float _slotSize)
+        public async void Generate(Vector2 gridPos)
         {
             gridOffset = gridPos;
-            slotSize = _slotSize;
+            // slotSize = _slotSize;
 
             for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
@@ -54,6 +63,7 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
+                        await Task.Delay(100);
                         FindPossibleModules(index);
                     }
                     else
