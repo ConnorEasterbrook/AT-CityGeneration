@@ -30,11 +30,13 @@ namespace WFCGenerator
     {
         private int slotPosition;
         private int moduleNumber;
+        private Vector3 chunkSize;
 
         public int rowPosition;
         public int columnPosition;
         public int heightPosition;
         public bool edgeSlot;
+        public bool[] otherChunkNeighbourSlot; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
 
         // public WFCSlotIdentifier(int _slotPosition, int _moduleNumber)
         // {
@@ -42,30 +44,81 @@ namespace WFCGenerator
         //     moduleNumber = _moduleNumber;
         // }
 
-        public void EstablishInformation(int _slotPosition, int _moduleNumber, Vector3Int chunkSize)
+        public void EstablishInformation(int _slotPosition, Vector3Int _chunkSize)
         {
             slotPosition = _slotPosition;
-            moduleNumber = _moduleNumber;
+            // moduleNumber = _moduleNumber;
+            chunkSize = _chunkSize;
 
-            rowPosition = slotPosition % chunkSize.x;
-            columnPosition = slotPosition / chunkSize.x;
-            heightPosition = slotPosition / (chunkSize.x * chunkSize.z);
+            rowPosition = slotPosition % _chunkSize.x;
+            columnPosition = slotPosition / _chunkSize.x;
+            heightPosition = slotPosition / (_chunkSize.x * _chunkSize.z);
 
             // Check if the slot is along the edge of the chunk
-            if (rowPosition == 0 || rowPosition == chunkSize.x - 1 || columnPosition == 0 || columnPosition == chunkSize.z - 1)
+            if (rowPosition == 0 || rowPosition == _chunkSize.x - 1 || columnPosition == 0 || columnPosition == _chunkSize.z - 1)
             {
                 edgeSlot = true;
+                CheckSlotNeighbour();
             }
         }
 
-        // public void CopyInformation(WFCSlotIdentifier slotID)
-        // {
-        //     slotPosition = slotID.slotPosition;
-        //     moduleNumber = slotID.moduleNumber;
-        //     rowPosition = slotID.rowPosition;
-        //     columnPosition = slotID.columnPosition;
-        //     heightPosition = slotID.heightPosition;
-        //     edgeSlot = slotID.edgeSlot;
-        // }
+        public void CheckSlotNeighbour()
+        {
+            otherChunkNeighbourSlot = new bool[4];
+
+            // If the slot is a corner slot
+            if (rowPosition == 0 && columnPosition == 0) // Top left corner
+            {
+                otherChunkNeighbourSlot[0] = true;
+                otherChunkNeighbourSlot[2] = true;
+            }
+            else if (rowPosition == 0 && columnPosition == chunkSize.z - 1) // Top right corner
+            {
+                otherChunkNeighbourSlot[1] = true;
+                otherChunkNeighbourSlot[2] = true;
+            }
+            else if (rowPosition == chunkSize.x - 1 && columnPosition == 0) // Bottom left corner
+            {
+                otherChunkNeighbourSlot[0] = true;
+                otherChunkNeighbourSlot[3] = true;
+            }
+            else if (rowPosition == chunkSize.x - 1 && columnPosition == chunkSize.z - 1) // Bottom right corner
+            {
+                otherChunkNeighbourSlot[1] = true;
+                otherChunkNeighbourSlot[3] = true;
+            }
+            else
+            {
+                // Check what side the neighbour chunk slot is on
+                if (rowPosition == 0) // Far top Side
+                {
+                    otherChunkNeighbourSlot[2] = true;
+                }
+                else if (rowPosition == chunkSize.x - 1) // Far bottom side
+                {
+                    otherChunkNeighbourSlot[3] = true;
+                }
+                else if (columnPosition == 0) // Far left side
+                {
+                    otherChunkNeighbourSlot[0] = true;
+                }
+                else if (columnPosition == chunkSize.z - 1) // Far right side
+                {
+                    otherChunkNeighbourSlot[1] = true;
+                }
+            }
+        }
+
+        public void CopyInformation(WFCSlotIdentifier slotID)
+        {
+            slotPosition = slotID.slotPosition;
+            moduleNumber = slotID.moduleNumber;
+            chunkSize = slotID.chunkSize;
+            rowPosition = slotID.rowPosition;
+            columnPosition = slotID.columnPosition;
+            heightPosition = slotID.heightPosition;
+            edgeSlot = slotID.edgeSlot;
+            otherChunkNeighbourSlot = slotID.otherChunkNeighbourSlot;
+        }
     }
 }

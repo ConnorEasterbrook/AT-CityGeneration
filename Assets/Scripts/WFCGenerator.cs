@@ -194,7 +194,7 @@ namespace WFCGenerator
 
         private void ClearVariables()
         {
-            chunkGrid.Clear(mapParent);
+            // chunkGrid.Clear(mapParent);
             chunks.Clear();
             chunkList.Clear();
         }
