@@ -54,7 +54,8 @@ namespace WFCGenerator
         private bool[,] possibilities;
         private int[] entropy;
         private bool failed;
-        private GameObject[] gridSlots;
+        private List<GameObject> gridSlots = new List<GameObject>();
+        private List<GameObject> deleteThis = new List<GameObject>();
 
         private GameObject generator;
         private GameObject mapParent;
@@ -78,7 +79,7 @@ namespace WFCGenerator
 
             for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
-                Clear(mapParent); // Clear all variables and gameobjects.
+                // Clear(mapParent); // Clear all variables and gameobjects.
                 Initialize(generator, mapParent); // Initialize the wave function collapse algorithm.
 
                 // For each iteration, if generation failed, clear the grid and re-initialize the wave function collapse algorithm.
@@ -89,12 +90,21 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
-                        await Task.Delay(100);
+                        await Task.Delay(50);
                         FindPossibleModules(index);
                     }
                     else
                     {
+
+
                         // If the next slot is not found, generation is successful.
+                        while (deleteThis.Count > 0)
+                        {
+                            GameObject.DestroyImmediate(deleteThis[0]);
+                            deleteThis.RemoveAt(0);
+                        }
+                        Debug.Log(gridSlots.Count + " ... " + chunk.transform.childCount);
+
                         return;
                     }
                 }
@@ -127,8 +137,6 @@ namespace WFCGenerator
         /// </summary>
         void Initialize(GameObject generator, GameObject mapParent)
         {
-            gridSlots = new GameObject[gridRowWidth * gridColumnLength * gridHeight]; // Create a new array of game objects with the size of the grid.
-
             // Organise in inspector.
             chunk = new GameObject(); // Create a new game object with the name of the grid.
             chunk.transform.parent = mapParent.transform;  // Set the parent of the game object to the generator.
@@ -190,7 +198,7 @@ namespace WFCGenerator
 
         private void EstablishSlots(int currentSlot)
         {
-            gridSlots[currentSlot] = new GameObject(); // Create a new game object.
+            gridSlots.Add(new GameObject("Slot: " + currentSlot)); // Add the current slot to the grid slot list.
             gridSlots[currentSlot].AddComponent<WFCSlotIdentifier>().EstablishInformation(currentSlot, new Vector3Int(gridRowWidth, gridHeight, gridColumnLength)); // Add a slot identifier to the game object.
             gridSlots[currentSlot].transform.parent = chunk.transform; // Set the parent of the game object to the grid.
         }
@@ -484,25 +492,26 @@ namespace WFCGenerator
             {
                 int randomPrefab = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
 
-                GameObject item;
                 WFCSlotIdentifier copyID = gridSlots[slotNumber].GetComponent<WFCSlotIdentifier>();
-                MonoBehaviour.DestroyImmediate(gridSlots[slotNumber]);
 
                 // float tempRotation = 0; // Reset variable.
                 Quaternion rotation = Quaternion.identity; // Reset variable.
 
                 if (generationModules[module].prefab[randomPrefab] != null)
                 {
-                    // Instantiate the prefab. Because we need to use prefabs, we have to replace the previous gameobject and avoid duplicates
-                    item = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], chunk.transform); // Instantiate the module prefab at the root transform.
-                    item.AddComponent<WFCSlotIdentifier>().CopyInformation(copyID);
-                    item.name = generationModules[module].prefab[randomPrefab].name + " | " + slotNumber; // Set the name of the prefab to the name of the prefab + the index of the slot.
+                    GameObject tempGO = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], chunk.transform);
+                    tempGO.AddComponent<WFCSlotIdentifier>().CopyInformation(copyID);
+
+                    deleteThis.Add(gridSlots[slotNumber]);
+                    gridSlots.RemoveAt(slotNumber);
+                    gridSlots.Insert(slotNumber, tempGO);
+
+                    gridSlots[slotNumber].transform.position = chunk.transform.position;
+                    gridSlots[slotNumber].transform.rotation = chunk.transform.rotation;
                 }
                 else
                 {
-                    item = new GameObject("Empty | " + slotNumber);
-                    item.AddComponent<WFCSlotIdentifier>().CopyInformation(copyID);
-                    item.transform.parent = chunk.transform; // Set the parent of the prefab to the root transform.
+                    gridSlots[slotNumber].transform.parent = chunk.transform; // Set the parent of the prefab to the root transform.
                 }
 
                 Vector3 slotCoordinates = Reshape(slotNumber); // Get the x, y, and z coordinates of the slot.
@@ -517,11 +526,11 @@ namespace WFCGenerator
                     Vector3 position = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
                     position.x += randX;
                     position.z += randZ;
-                    item.transform.localPosition = position; // Set the position of the module prefab to the open slot.
+                    gridSlots[slotNumber].transform.localPosition = position; // Set the position of the module prefab to the open slot.
                 }
                 else
                 {
-                    item.transform.localPosition = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
+                    gridSlots[slotNumber].transform.localPosition = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
                 }
 
                 // item.transform.localRotation = Quaternion.Euler(tempRotation, 90 * generationModules[module].ReturnConnectionDirection(), item.transform.localRotation.z); // Set the rotation of the module prefab to the open slot.
@@ -537,7 +546,7 @@ namespace WFCGenerator
                     rotation.y = Random.Range(0, 360); // Rotate the prefab randomly.
                 }
 
-                item.transform.localRotation = Quaternion.Euler(rotation.x, rotation.y, rotation.z); // Set the rotation of the module prefab to the open slot.
+                gridSlots[slotNumber].transform.localRotation = Quaternion.Euler(rotation.x, rotation.y, rotation.z); // Set the rotation of the module prefab to the open slot.
             }
         }
 
