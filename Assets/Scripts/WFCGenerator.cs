@@ -1,3 +1,25 @@
+/**
+ * Copyright 2022 Connor Easterbrook
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+*/
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,6 +36,7 @@ namespace WFCGenerator
         public bool drawGenerationMarkers = true; // Draw the generation markers in the scene view
         [Range(0, 4)] public int chunkAmount = 1; // The amount of chunks to generate in each direction from the center chunk
         [Range(0, 3)] public int delay = 1; // The delay between each chunk generation
+        public Vector3 gridSize = new Vector3(16, 16, 1); // The size of the grid
         public float slotSize = 10; // The size of each slot in the grid
         public GameObject mapParent; // The parent object of the map
         public GameObject player; // The player object
@@ -46,7 +69,7 @@ namespace WFCGenerator
                 }
             }
 
-            float chunkSize = chunkGrid.gridWidth * slotSize; // Calculate the size of each chunk
+            float chunkSize = gridSize.x * slotSize; // Calculate the size of each chunk
 
             // Calculate the current chunk position
             int currentChunkPosX = Mathf.RoundToInt(player.transform.position.x / chunkSize);
@@ -68,7 +91,7 @@ namespace WFCGenerator
                         {
                             chunkGrid = new WFCChunk(gameObject, mapParent, slotSize, generationModules); // Create a new chunk grid
 
-                            chunkGrid.Generate(currentChunkPos / 10); // Generate the chunk
+                            chunkGrid.Generate(currentChunkPos / 10, gridSize); // Generate the chunk
 
                             chunks.Add(currentChunkPos, chunkGrid.ReturnChunk()); // Add the chunk to the dictionary
                             chunkList.Add(chunkGrid.ReturnChunk()); // Add the chunk to the list
@@ -117,9 +140,9 @@ namespace WFCGenerator
                     Vector2 mapSize = new Vector2();
 
                     chunkGrid = new WFCChunk(gameObject, mapParent, slotSize, generationModules); // Create a new chunk grid
-                    mapSize.x = x * chunkGrid.gridWidth;
-                    mapSize.y = y * chunkGrid.gridLength;
-                    chunkGrid.Generate(mapSize); // Pass the map size to the chunk grid script
+                    mapSize.x = x * gridSize.x;
+                    mapSize.y = y * gridSize.z;
+                    chunkGrid.Generate(mapSize, gridSize); // Pass the map size to the chunk grid script
 
                     Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize); // Calculate the chunk position
                     chunks.Add(chunkPos, chunkGrid.ReturnChunk()); // Add the chunk to the dictionary
@@ -153,9 +176,9 @@ namespace WFCGenerator
                     Vector2 mapSize = new Vector2();
 
                     chunkGrid = new WFCChunk(gameObject, mapParent, slotSize, generationModules); // Create a new chunk grid
-                    mapSize.x = x * chunkGrid.gridWidth;
-                    mapSize.y = y * chunkGrid.gridLength;
-                    chunkGrid.Generate(mapSize); // Pass the map size to the chunk grid script
+                    mapSize.x = x * gridSize.x;
+                    mapSize.y = y * gridSize.z;
+                    chunkGrid.Generate(mapSize, gridSize); // Pass the map size to the chunk grid script
 
                     Vector2 chunkPos = new Vector2(mapSize.x * slotSize, mapSize.y * slotSize); // Calculate the chunk position
                     chunks.Add(chunkPos, chunkGrid.ReturnChunk()); // Add the chunk to the dictionary

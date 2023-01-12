@@ -1,3 +1,25 @@
+/**
+ * Copyright 2022 Connor Easterbrook
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+*/
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -16,8 +38,8 @@ namespace WFCGenerator
 
         [Header("Grid")]
         private float slotSize = 10f; // Size of each block.
-        public int gridWidth = 16; // Width of the grid.
-        public int gridLength = 16; // Length of the grid.
+        public int gridRowWidth = 16; // Width of the grid.
+        public int gridColumnLength = 16; // Length of the grid.
         public int gridHeight = 1; // Height of the grid.
         public float heightOffset = 0; // The height offset for each slot in the grid.
         private Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
@@ -32,6 +54,7 @@ namespace WFCGenerator
         private bool[,] possibilities;
         private int[] entropy;
         private bool failed;
+        private GameObject[,,] gridSlots;
 
         private GameObject generator;
         private GameObject mapParent;
@@ -46,10 +69,12 @@ namespace WFCGenerator
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public async void Generate(Vector2 gridPos)
+        public async void Generate(Vector2 gridPos, Vector3 chunkSize)
         {
             gridOffset = gridPos;
-            // slotSize = _slotSize;
+            gridRowWidth = (int)chunkSize.x;
+            gridColumnLength = (int)chunkSize.z;
+            gridHeight = (int)chunkSize.y;
 
             for (int attempt = 0; attempt < _MAX_ATTEMPTS; attempt++)
             {
@@ -101,19 +126,21 @@ namespace WFCGenerator
         /// </summary>
         void Initialize(GameObject generator, GameObject mapParent)
         {
+            gridSlots = new GameObject[gridRowWidth, gridColumnLength, gridHeight]; // Initialize the grid slots.
+
             // Organise in inspector.
             chunk = new GameObject(); // Create a new game object with the name of the grid.
             chunk.transform.parent = mapParent.transform;  // Set the parent of the game object to the generator.
             // gridRoot.position = new Vector3(generator.transform.position.x, generator.transform.position.y + ((slotSize * gridHeight) / 2) - (slotSize / 2), generator.transform.position.z); // Set the root x, z positions to the generator and keep the bottom layer at the same height as the generator yPos.
             chunk.transform.position = new Vector3(gridOffset.x * slotSize, 0, gridOffset.y * slotSize);
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
-            chunk.name = name + " " + (gridOffset / gridWidth); // Set the name of the game object to the name of the grid and the position of the grid.
+            chunk.name = name + " " + (gridOffset / gridRowWidth); // Set the name of the game object to the name of the grid and the position of the grid.
 
             // Initialize variables.
-            slotOffset = new Vector3(gridWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridLength * slotSize / 2f); // Initialize the block offset.
-            generation = new bool[gridWidth * gridLength * gridHeight, 6, generationModules.Count, generationModules.Count]; // Initialize the wave function collapse algorithm.
-            possibilities = new bool[gridWidth * gridLength * gridHeight, generationModules.Count]; // Initialize the possibilities boolean.
-            entropy = new int[gridWidth * gridLength * gridHeight]; // Initialize the entropy integer.
+            slotOffset = new Vector3(gridRowWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridColumnLength * slotSize / 2f); // Initialize the block offset.
+            generation = new bool[gridRowWidth * gridColumnLength * gridHeight, 6, generationModules.Count, generationModules.Count]; // Initialize the wave function collapse algorithm.
+            possibilities = new bool[gridRowWidth * gridColumnLength * gridHeight, generationModules.Count]; // Initialize the possibilities boolean.
+            entropy = new int[gridRowWidth * gridColumnLength * gridHeight]; // Initialize the entropy integer.
 
             // For each slot in the grid
             for (int currentSlot = 0; currentSlot < generation.GetLength(0); currentSlot++)
@@ -137,28 +164,7 @@ namespace WFCGenerator
                         // For each face of the block, run through the modules.
                         for (int neighbourSlotModule = 0; neighbourSlotModule < generationModules.Count; neighbourSlotModule++)
                         {
-                            // If the module connects to the other module
-                            if (generationModules[slotModule].ConnectsTo(generationModules[neighbourSlotModule], neighbourSlot))
-                            {
-                                // If the module has enabled banning of specific modules, check this module is not banned.
-                                if (generationModules[slotModule].CheckBannedNeighbour(generationModules[neighbourSlotModule], neighbourSlot))
-                                {
-                                    // If them modules differ then continue, else if the module has banned duplicates of itself, check this module is not a duplicate.
-                                    if (generationModules[slotModule] != generationModules[neighbourSlotModule])
-                                    {
-                                        generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
-                                        connected = true; // Set connected to true
-                                    }
-                                    else
-                                    {
-                                        if (generationModules[slotModule].CheckDuplicateRestriction(generationModules[neighbourSlotModule], neighbourSlot))
-                                        {
-                                            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
-                                            connected = true; // Set connected to true
-                                        }
-                                    }
-                                }
-                            }
+                            CheckSlotConditions(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                         }
 
                         // If the module isn't connected
@@ -174,6 +180,32 @@ namespace WFCGenerator
                     if (possible)
                     {
                         entropy[currentSlot]++; // Increase the entropy
+                    }
+                }
+            }
+        }
+
+        private void CheckSlotConditions(int slotModule, int neighbourSlotModule, int currentSlot, int neighbourSlot, ref bool connected)
+        {
+            // If the module connects to the other module
+            if (generationModules[slotModule].ConnectsTo(generationModules[neighbourSlotModule], neighbourSlot))
+            {
+                // If the module has enabled banning of specific modules, check this module is not banned.
+                if (generationModules[slotModule].CheckBannedNeighbour(generationModules[neighbourSlotModule], neighbourSlot))
+                {
+                    // If them modules differ then continue, else if the module has banned duplicates of itself, check this module is not a duplicate.
+                    if (generationModules[slotModule] != generationModules[neighbourSlotModule])
+                    {
+                        generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                        connected = true; // Set connected to true
+                    }
+                    else
+                    {
+                        if (generationModules[slotModule].CheckDuplicateRestriction(generationModules[neighbourSlotModule], neighbourSlot))
+                        {
+                            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                            connected = true; // Set connected to true
+                        }
                     }
                 }
             }
@@ -196,16 +228,16 @@ namespace WFCGenerator
             {
                 // If the direction is up (north)
                 case 0:
-                    if (z < gridLength - 1)
+                    if (z < gridColumnLength - 1)
                     {
-                        adjacent = index + gridWidth;
+                        adjacent = index + gridRowWidth;
                         return true;
                     }
                     return false;
 
                 // If the direction is right (east)
                 case 1:
-                    if (x < gridWidth - 1)
+                    if (x < gridRowWidth - 1)
                     {
                         adjacent = index + 1;
                         return true;
@@ -216,7 +248,7 @@ namespace WFCGenerator
                 case 2:
                     if (z > 0)
                     {
-                        adjacent = index - gridWidth;
+                        adjacent = index - gridRowWidth;
                         return true;
                     }
                     return false;
@@ -234,7 +266,7 @@ namespace WFCGenerator
                 case 4:
                     if (y < gridHeight - 1)
                     {
-                        adjacent = index + gridLength * gridWidth;
+                        adjacent = index + gridColumnLength * gridRowWidth;
                         return true;
                     }
                     return false;
@@ -243,7 +275,7 @@ namespace WFCGenerator
                 case 5:
                     if (y > 0)
                     {
-                        adjacent = index - gridLength * gridWidth;
+                        adjacent = index - gridColumnLength * gridRowWidth;
                         return true;
                     }
                     return false;
@@ -259,9 +291,9 @@ namespace WFCGenerator
         /// </summary>
         public Vector3 Reshape(int index)
         {
-            int y = index / (gridLength * gridWidth); // Get the y coordinate.
-            int z = index / gridWidth; // Get the z coordinate.
-            int x = index % gridWidth; // Get the x coordinate.
+            int y = index / (gridColumnLength * gridRowWidth); // Get the y coordinate.
+            int z = index / gridRowWidth; // Get the z coordinate.
+            int x = index % gridRowWidth; // Get the x coordinate.
 
             return new Vector3(x, y, z);// Return the x, y, and z coordinates.
         }
@@ -297,6 +329,7 @@ namespace WFCGenerator
                     }
                 }
             }
+
             return result;
         }
 
@@ -305,7 +338,7 @@ namespace WFCGenerator
         /// </summary>
         void FindPossibleModules(int slotNumber)
         {
-            List<int> candidates = new List<int>(); // Instantiate a list to contain the possible module generations.
+            List<int> modules = new List<int>(); // Instantiate a list to contain the possible module generations.
 
             int result = -1; // Reset variable.
             int randomModule = 0; // Set randomModule to the first module by default in case there are no possible modules.
@@ -325,17 +358,17 @@ namespace WFCGenerator
                         result = module; // Set the result to the module index.
                     }
 
-                    candidates.Add(module); // Add the module index to the list of possible modules.
+                    modules.Add(module); // Add the module index to the list of possible modules.
                 }
             }
 
             // For each module in the list of possible modules.
-            foreach (int candidate in candidates)
+            foreach (int module in modules)
             {
                 // If the module does not match the result.
-                if (candidate != result)
+                if (module != result)
                 {
-                    Propagate(slotNumber, candidate); // Propagate the module
+                    Propagate(slotNumber, module); // Propagate the module
                 }
             }
         }
@@ -428,17 +461,21 @@ namespace WFCGenerator
                 return;
             }
 
-            InstantiatePrefabs(slotNumber, module);
+            InstantiatePrefabs(slotNumber, module); // Instantiate the prefabs.
         }
 
         /// <summary>
         /// Instantiate the prefabs. Implementing randomness.
         /// </summary>
-        private void InstantiatePrefabs(int index, int module)
+        private void InstantiatePrefabs(int slotNumber, int module)
         {
             // If a module was set.
             if (generationModules[module].prefab != null)
             {
+                // Establish slot information
+                // WFCSlotIdentifier slotID = new WFCSlotIdentifier(slotNumber, module); // Instantiate a new slot identifier.
+                // slotID.EstablishInformation(gridRowWidth, gridColumnLength, gridHeight); // Establish the information of the slot.
+
                 int randomPrefab = Random.Range(0, generationModules[module].prefab.Length); // Get a random number between 0 and the length of the module prefab array.
 
                 GameObject item; // Instantiate a new game object.
@@ -449,17 +486,18 @@ namespace WFCGenerator
                 {
                     // Instantiate the prefab.
                     item = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], chunk.transform); // Instantiate the module prefab at the root transform.
-                    item.name = generationModules[module].prefab[randomPrefab].name + " | " + index; // Set the name of the prefab to the name of the prefab + the index of the slot.
+                    item.name = generationModules[module].prefab[randomPrefab].name + " | " + slotNumber; // Set the name of the prefab to the name of the prefab + the index of the slot.
+                    item.AddComponent<WFCSlotIdentifier>().EstablishInformation(slotNumber, module, new Vector3Int(gridRowWidth, gridHeight, gridColumnLength)); // Add a slot identifier to the prefab.
                     // tempRotation = generationModules[module].prefab[randomPrefab].transform.localRotation.x;
                 }
                 else
                 {
                     item = new GameObject();
-                    item.name = "Empty | " + index;
+                    item.name = "Empty | " + slotNumber;
                     item.transform.parent = chunk.transform; // Set the parent of the prefab to the root transform.
                 }
 
-                Vector3 slotCoordinates = Reshape(index); // Get the x, y, and z coordinates of the slot.
+                Vector3 slotCoordinates = Reshape(slotNumber); // Get the x, y, and z coordinates of the slot.
                 int x = Mathf.RoundToInt(slotCoordinates.x); // Get the x coordinate of the slot.
                 int y = Mathf.RoundToInt(slotCoordinates.y); // Get the y coordinate of the slot.
                 int z = Mathf.RoundToInt(slotCoordinates.z); // Get the z coordinate of the slot.
@@ -534,13 +572,13 @@ namespace WFCGenerator
             style.fontStyle = FontStyle.Bold;
 
             // For each slot on the grid.
-            for (int x = 0; x < gridWidth; x++)
+            for (int x = 0; x < gridRowWidth; x++)
             {
                 for (int y = 0; y < gridHeight; y++)
                 {
-                    for (int z = 0; z < gridLength; z++)
+                    for (int z = 0; z < gridColumnLength; z++)
                     {
-                        int index = gridLength * gridWidth * y + gridWidth * z + x; // Get the index of the slot.
+                        int index = gridColumnLength * gridRowWidth * y + gridRowWidth * z + x; // Get the index of the slot.
                         int entropy = this.entropy[index]; // Get the entropy of the slot.
 
                         // If the slot is empty.
