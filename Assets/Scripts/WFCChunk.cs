@@ -38,9 +38,9 @@ namespace WFCGenerator
 
         [Header("Grid")]
         private float slotSize = 10f; // Size of each block.
-        public int gridRowWidth = 16; // Width of the grid.
-        public int gridColumnLength = 16; // Length of the grid.
-        public int gridHeight = 1; // Height of the grid.
+        [HideInInspector] public int gridRowWidth = 16; // Width of the grid.
+        [HideInInspector] public int gridColumnLength = 16; // Length of the grid.
+        [HideInInspector] public int gridHeight = 1; // Height of the grid.
         public float heightOffset = 0; // The height offset for each slot in the grid.
         private Vector2 gridOffset = new Vector2(0, 0); // The offset of the grid.
 
@@ -54,17 +54,19 @@ namespace WFCGenerator
         private bool[,] possibilities;
         private int[] entropy;
         private bool failed;
-        private List<GameObject> gridSlots = new List<GameObject>();
+        [HideInInspector] public List<GameObject> gridSlots = new List<GameObject>();
         private List<GameObject> deleteThis = new List<GameObject>();
+        private Vector2 chunkPosition; // The position of the chunk
 
         private GameObject generator;
         private GameObject mapParent;
-        public WFCChunk(GameObject _generator, GameObject _mapParent, float _slotSize, List<WFCModule> _generationModules)
+        public WFCChunk(GameObject _generator, GameObject _mapParent, float _slotSize, List<WFCModule> _generationModules, Vector2 _chunkPos)
         {
             generator = _generator;
             mapParent = _mapParent;
             slotSize = _slotSize;
             generationModules = _generationModules;
+            chunkPosition = _chunkPos;
         }
 
         /// <summary>
@@ -95,16 +97,14 @@ namespace WFCGenerator
                     }
                     else
                     {
-
-
                         // If the next slot is not found, generation is successful.
                         while (deleteThis.Count > 0)
                         {
                             GameObject.DestroyImmediate(deleteThis[0]);
                             deleteThis.RemoveAt(0);
                         }
-                        Debug.Log(gridSlots.Count + " ... " + chunk.transform.childCount);
 
+                        chunk.GetComponent<WFCChunkIdentifier>().OnGenerationComplete(gridSlots);
                         return;
                     }
                 }
@@ -144,6 +144,7 @@ namespace WFCGenerator
             chunk.transform.position = new Vector3(gridOffset.x * slotSize, 0, gridOffset.y * slotSize);
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
             chunk.name = name + " " + (gridOffset / gridRowWidth); // Set the name of the game object to the name of the grid and the position of the grid.
+            chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition);
 
             // Initialize variables.
             slotOffset = new Vector3(gridRowWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridColumnLength * slotSize / 2f); // Initialize the block offset.
@@ -500,6 +501,7 @@ namespace WFCGenerator
                 if (generationModules[module].prefab[randomPrefab] != null)
                 {
                     GameObject tempGO = GameObject.Instantiate(generationModules[module].prefab[randomPrefab], chunk.transform);
+                    copyID.SetModuleNumber(module);
                     tempGO.AddComponent<WFCSlotIdentifier>().CopyInformation(copyID);
 
                     deleteThis.Add(gridSlots[slotNumber]);

@@ -29,7 +29,7 @@ namespace WFCGenerator
     public class WFCSlotIdentifier : MonoBehaviour
     {
         private int slotPosition;
-        private int moduleNumber;
+        public int moduleNumber;
         private Vector3 chunkSize;
         private string NAME;
 
@@ -42,7 +42,6 @@ namespace WFCGenerator
         public void EstablishInformation(int _slotPosition, Vector3Int _chunkSize)
         {
             slotPosition = _slotPosition;
-            // moduleNumber = _moduleNumber;
             chunkSize = _chunkSize;
 
             rowPosition = slotPosition % _chunkSize.x;
@@ -59,31 +58,15 @@ namespace WFCGenerator
             }
             else
             {
-                NAME = "Slot: " + slotPosition;
-                gameObject.name = "Slot: " + slotPosition;
+                NAME = "Inner Slot: " + slotPosition;
+                gameObject.name = "Inner Slot: " + slotPosition;
             }
         }
 
         public void CheckSlotNeighbour()
         {
             // If the slot is a corner slot
-            if (rowPosition == 0 && columnPosition == 0) // Top left corner
-            {
-                otherChunkNeighbourSlot[0] = true;
-                otherChunkNeighbourSlot[2] = true;
-
-                NAME = "Top Left Corner | Slot:" + slotPosition;
-                gameObject.name = NAME;
-            }
-            else if (rowPosition == 0 && columnPosition == chunkSize.z - 1) // Top right corner
-            {
-                otherChunkNeighbourSlot[1] = true;
-                otherChunkNeighbourSlot[2] = true;
-
-                NAME = "Top Right Corner | Slot:" + slotPosition;
-                gameObject.name = NAME;
-            }
-            else if (rowPosition == chunkSize.x - 1 && columnPosition == 0) // Bottom left corner
+            if (rowPosition == 0 && columnPosition == 0) // Bottom left corner
             {
                 otherChunkNeighbourSlot[0] = true;
                 otherChunkNeighbourSlot[3] = true;
@@ -91,7 +74,15 @@ namespace WFCGenerator
                 NAME = "Bottom Left Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
             }
-            else if (rowPosition == chunkSize.x - 1 && columnPosition == chunkSize.z - 1) // Bottom right corner
+            else if (rowPosition == 0 && columnPosition == chunkSize.z - 1) // Top left corner
+            {
+                otherChunkNeighbourSlot[0] = true;
+                otherChunkNeighbourSlot[2] = true;
+
+                NAME = "Top Left Corner | Slot:" + slotPosition;
+                gameObject.name = NAME;
+            }
+            else if (rowPosition == chunkSize.x - 1 && columnPosition == 0) // Bottom right corner
             {
                 otherChunkNeighbourSlot[1] = true;
                 otherChunkNeighbourSlot[3] = true;
@@ -99,35 +90,43 @@ namespace WFCGenerator
                 NAME = "Bottom Right Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
             }
+            else if (rowPosition == chunkSize.x - 1 && columnPosition == chunkSize.z - 1) // Top right corner
+            {
+                otherChunkNeighbourSlot[1] = true;
+                otherChunkNeighbourSlot[2] = true;
+
+                NAME = "Top Right Corner | Slot:" + slotPosition;
+                gameObject.name = NAME;
+            }
             else
             {
                 // Check what side the neighbour chunk slot is on
-                if (rowPosition == 0) // Far top Side
-                {
-                    otherChunkNeighbourSlot[2] = true;
-
-                    NAME = "Top Side | Slot:" + slotPosition;
-                    gameObject.name = NAME;
-                }
-                else if (rowPosition == chunkSize.x - 1) // Far bottom side
-                {
-                    otherChunkNeighbourSlot[3] = true;
-
-                    NAME = "Bottom Side | Slot:" + slotPosition;
-                    gameObject.name = NAME;
-                }
-                else if (columnPosition == 0) // Far left side
+                if (rowPosition == 0) // Far left Side
                 {
                     otherChunkNeighbourSlot[0] = true;
 
                     NAME = "Left Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
                 }
-                else if (columnPosition == chunkSize.z - 1) // Far right side
+                else if (rowPosition == chunkSize.x - 1) // Far right side
                 {
                     otherChunkNeighbourSlot[1] = true;
 
                     NAME = "Right Side | Slot:" + slotPosition;
+                    gameObject.name = NAME;
+                }
+                else if (columnPosition == 0) // Far bottom side
+                {
+                    otherChunkNeighbourSlot[3] = true;
+
+                    NAME = "Bottom Side | Slot:" + slotPosition;
+                    gameObject.name = NAME;
+                }
+                else if (columnPosition == chunkSize.z - 1) // Far top side
+                {
+                    otherChunkNeighbourSlot[2] = true;
+
+                    NAME = "Top Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
                 }
             }
@@ -145,32 +144,32 @@ namespace WFCGenerator
             otherChunkNeighbourSlot = slotID.otherChunkNeighbourSlot;
             NAME = slotID.NAME;
             gameObject.name = NAME;
+            moduleNumber = slotID.moduleNumber;
 
-#if !UNITY_EDITOR
-            StartCoroutine(SpawnObject());
-#endif
+            if (gameObject.activeInHierarchy == true && Application.isPlaying)
+            {
+                StartCoroutine(SpawnObject());
+            }
         }
 
         private IEnumerator SpawnObject()
         {
-            if (gameObject.activeInHierarchy == true)
-            {
-                Vector3 originalSize = gameObject.transform.localScale;
-                gameObject.transform.localScale = Vector3.zero;
-                float spawnDuration = 0.5f;
-                float currentTime = 0;
+            Vector3 originalSize = gameObject.transform.localScale;
+            gameObject.transform.localScale = Vector3.zero;
+            float spawnDuration = 0.5f;
+            float currentTime = 0;
 
-                while (currentTime < spawnDuration)
-                {
-                    transform.localScale = Vector3.Lerp(Vector3.zero, originalSize, currentTime / spawnDuration * 1.5f);
-                    currentTime += Time.deltaTime;
-                    yield return null;
-                }
-            }
-            else
+            while (currentTime < spawnDuration)
             {
+                transform.localScale = Vector3.Lerp(Vector3.zero, originalSize, currentTime / spawnDuration * 1.25f);
+                currentTime += Time.deltaTime;
                 yield return null;
             }
+        }
+
+        public void SetModuleNumber(int _moduleNumber)
+        {
+            moduleNumber = _moduleNumber;
         }
     }
 }
