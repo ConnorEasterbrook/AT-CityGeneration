@@ -37,7 +37,7 @@ namespace WFCGenerator
         private List<WFCModule> generationModules; // List of modules.
 
         [Header("Grid")]
-        private float slotSize = 10f; // Size of each block.
+        [HideInInspector] public float slotSize = 10f; // Size of each block.
         [HideInInspector] public int gridRowWidth = 16; // Width of the grid.
         [HideInInspector] public int gridColumnLength = 16; // Length of the grid.
         [HideInInspector] public int gridHeight = 1; // Height of the grid.
@@ -50,6 +50,7 @@ namespace WFCGenerator
         private static readonly int[] _OPPOSITE = { 2, 3, 0, 1, 5, 4 }; // Opposite directions. 0-2, 1-3, 2-0, 3-1, 4-5, 5-4. North, East, South, West, Above, Below.
         private Vector3 slotOffset;
         private GameObject chunk;
+        private WFCChunkIdentifier chunkIdentifier;
         private bool[,,,] generation;
         private bool[,] possibilities;
         private int[] entropy;
@@ -144,7 +145,8 @@ namespace WFCGenerator
             chunk.transform.position = new Vector3(gridOffset.x * slotSize, 0, gridOffset.y * slotSize);
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
             chunk.name = name + " " + (gridOffset / gridRowWidth); // Set the name of the game object to the name of the grid and the position of the grid.
-            chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition);
+            chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition, this);
+            chunkIdentifier = chunk.GetComponent<WFCChunkIdentifier>();
 
             // Initialize variables.
             slotOffset = new Vector3(gridRowWidth * slotSize / 2f, gridHeight * slotSize / 2f, gridColumnLength * slotSize / 2f); // Initialize the block offset.
@@ -197,10 +199,13 @@ namespace WFCGenerator
             }
         }
 
+        private WFCSlotIdentifier slotID;
+
         private void EstablishSlots(int currentSlot)
         {
             gridSlots.Add(new GameObject("Slot: " + currentSlot)); // Add the current slot to the grid slot list.
-            gridSlots[currentSlot].AddComponent<WFCSlotIdentifier>().EstablishInformation(currentSlot, new Vector3Int(gridRowWidth, gridHeight, gridColumnLength)); // Add a slot identifier to the game object.
+            slotID = gridSlots[currentSlot].AddComponent<WFCSlotIdentifier>(); // Add a slot identifier to the game object.
+            slotID.EstablishInformation(currentSlot, new Vector3Int(gridRowWidth, gridHeight, gridColumnLength));
             gridSlots[currentSlot].transform.parent = chunk.transform; // Set the parent of the game object to the grid.
         }
 
@@ -215,6 +220,8 @@ namespace WFCGenerator
                     // If them modules differ then continue, else if the module has banned duplicates of itself, check this module is not a duplicate.
                     if (generationModules[slotModule] != generationModules[neighbourSlotModule])
                     {
+                        CheckChunkConditions(currentSlot);
+
                         generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
                         connected = true; // Set connected to true
                     }
@@ -222,9 +229,73 @@ namespace WFCGenerator
                     {
                         if (generationModules[slotModule].CheckDuplicateRestriction(generationModules[neighbourSlotModule], neighbourSlot))
                         {
+                            CheckChunkConditions(currentSlot);
+
                             generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
                             connected = true; // Set connected to true
                         }
+                    }
+                }
+            }
+        }
+
+        private void CheckChunkConditions(int currentSlot)
+        {
+            // WFCSlotIdentifier slotID = gridSlots[currentSlot].GetComponent<WFCSlotIdentifier>(); // Get the slot identifier of the current slot.
+
+            // If the tile is an edge tile
+            if (slotID.edgeSlot && chunkIdentifier.hasNeighbour)
+            {
+                int rowPosition = slotID.rowPosition; // Get the row position of the slot.
+                int columnPosition = slotID.columnPosition; // Get the column position of the slot.
+                int heightPosition = slotID.heightPosition; // Get the height position of the slot.
+
+                // Check if the edge tile is a corner edge tile.
+                if (slotID.cornerEdgeSlot)
+                {
+                    // Get both edge sides
+                    int[] oppositeSlots = new int[2];
+
+                    if (slotID.edgeSide[0] && slotID.edgeSide[2])
+                    {
+                        oppositeSlots[0] = columnPosition * gridRowWidth + gridRowWidth - 1; // lEFT OPPOSITE
+                        oppositeSlots[1] = rowPosition; // TOP OPPOSITE
+                    }
+                    else if (slotID.edgeSide[0] && slotID.edgeSide[3])
+                    {
+                        oppositeSlots[0] = columnPosition * gridRowWidth + gridRowWidth - 1; // LEFT OPPOSITE
+                        oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
+                    }
+                    else if (slotID.edgeSide[1] && slotID.edgeSide[2])
+                    {
+                        oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
+                        oppositeSlots[1] = rowPosition; // TOP OPPOSITE
+                    }
+                    else if (slotID.edgeSide[1] && slotID.edgeSide[3])
+                    {
+                        oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
+                        oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
+                    }
+                }
+                else
+                {
+                    int oppositeSlot = 0; // Initialize the opposite slot.
+
+                    if (slotID.edgeSide[0] && chunkIdentifier.supposedNeighbour[0] != null)
+                    {
+                        oppositeSlot = columnPosition * gridRowWidth + gridRowWidth - 1;
+                    }
+                    else if (slotID.edgeSide[1] && chunkIdentifier.supposedNeighbour[1] != null)
+                    {
+                        oppositeSlot = columnPosition * gridRowWidth;
+                    }
+                    else if (slotID.edgeSide[2] && chunkIdentifier.supposedNeighbour[2] != null)
+                    {
+                        oppositeSlot = rowPosition;
+                    }
+                    else if (slotID.edgeSide[3] && chunkIdentifier.supposedNeighbour[3] != null)
+                    {
+                        oppositeSlot = (gridColumnLength - 1) * gridRowWidth + rowPosition;
                     }
                 }
             }

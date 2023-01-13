@@ -37,7 +37,10 @@ namespace WFCGenerator
         public int columnPosition;
         public int heightPosition;
         public bool edgeSlot;
-        public bool[] otherChunkNeighbourSlot; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
+        public bool cornerEdgeSlot;
+        public bool[] edgeSide; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
+        public int singleEdgeSide;
+        public GameObject[] otherChunkOppositeSlot; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
 
         public void EstablishInformation(int _slotPosition, Vector3Int _chunkSize)
         {
@@ -48,7 +51,8 @@ namespace WFCGenerator
             columnPosition = slotPosition / _chunkSize.x;
             heightPosition = slotPosition / (_chunkSize.x * _chunkSize.z);
 
-            otherChunkNeighbourSlot = new bool[4];
+            edgeSide = new bool[4];
+            otherChunkOppositeSlot = new GameObject[4];
 
             // Check if the slot is along the edge of the chunk
             if (rowPosition == 0 || rowPosition == _chunkSize.x - 1 || columnPosition == 0 || columnPosition == _chunkSize.z - 1)
@@ -68,32 +72,36 @@ namespace WFCGenerator
             // If the slot is a corner slot
             if (rowPosition == 0 && columnPosition == 0) // Bottom left corner
             {
-                otherChunkNeighbourSlot[0] = true;
-                otherChunkNeighbourSlot[3] = true;
+                edgeSide[0] = true;
+                edgeSide[3] = true;
+                cornerEdgeSlot = true;
 
                 NAME = "Bottom Left Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
             }
             else if (rowPosition == 0 && columnPosition == chunkSize.z - 1) // Top left corner
             {
-                otherChunkNeighbourSlot[0] = true;
-                otherChunkNeighbourSlot[2] = true;
+                edgeSide[0] = true;
+                edgeSide[2] = true;
+                cornerEdgeSlot = true;
 
                 NAME = "Top Left Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
             }
             else if (rowPosition == chunkSize.x - 1 && columnPosition == 0) // Bottom right corner
             {
-                otherChunkNeighbourSlot[1] = true;
-                otherChunkNeighbourSlot[3] = true;
+                edgeSide[1] = true;
+                edgeSide[3] = true;
+                cornerEdgeSlot = true;
 
                 NAME = "Bottom Right Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
             }
             else if (rowPosition == chunkSize.x - 1 && columnPosition == chunkSize.z - 1) // Top right corner
             {
-                otherChunkNeighbourSlot[1] = true;
-                otherChunkNeighbourSlot[2] = true;
+                edgeSide[1] = true;
+                edgeSide[2] = true;
+                cornerEdgeSlot = true;
 
                 NAME = "Top Right Corner | Slot:" + slotPosition;
                 gameObject.name = NAME;
@@ -103,28 +111,32 @@ namespace WFCGenerator
                 // Check what side the neighbour chunk slot is on
                 if (rowPosition == 0) // Far left Side
                 {
-                    otherChunkNeighbourSlot[0] = true;
+                    edgeSide[0] = true;
+                    singleEdgeSide = 0;
 
                     NAME = "Left Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
                 }
                 else if (rowPosition == chunkSize.x - 1) // Far right side
                 {
-                    otherChunkNeighbourSlot[1] = true;
+                    edgeSide[1] = true;
+                    singleEdgeSide = 1;
 
                     NAME = "Right Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
                 }
                 else if (columnPosition == 0) // Far bottom side
                 {
-                    otherChunkNeighbourSlot[3] = true;
+                    edgeSide[3] = true;
+                    singleEdgeSide = 3;
 
                     NAME = "Bottom Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
                 }
                 else if (columnPosition == chunkSize.z - 1) // Far top side
                 {
-                    otherChunkNeighbourSlot[2] = true;
+                    edgeSide[2] = true;
+                    singleEdgeSide = 2;
 
                     NAME = "Top Side | Slot:" + slotPosition;
                     gameObject.name = NAME;
@@ -141,7 +153,7 @@ namespace WFCGenerator
             columnPosition = slotID.columnPosition;
             heightPosition = slotID.heightPosition;
             edgeSlot = slotID.edgeSlot;
-            otherChunkNeighbourSlot = slotID.otherChunkNeighbourSlot;
+            edgeSide = slotID.edgeSide;
             NAME = slotID.NAME;
             gameObject.name = NAME;
             moduleNumber = slotID.moduleNumber;
