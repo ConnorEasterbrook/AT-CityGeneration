@@ -93,7 +93,7 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
-                        await Task.Delay(50);
+                        // await Task.Delay(50);
                         FindPossibleModules(index);
                     }
                     else
@@ -284,6 +284,11 @@ namespace WFCGenerator
                     if (slotID.edgeSide[0] && chunkIdentifier.supposedNeighbour[0] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth + gridRowWidth - 1;
+
+                        // Using the opposite slot integer, get the opposite slot identifier.
+                        GameObject relativeChunkGO = chunkIdentifier.chunkNeighbours[0];
+                        WFCSlotIdentifier oppositeSlotID = relativeChunkGO.GetComponent<WFCChunkIdentifier>().gridSlots[oppositeSlot].GetComponent<WFCSlotIdentifier>();
+                        Debug.Log("Current slot " + currentSlot + " opposite slot " + oppositeSlot + " opposite slot module " + oppositeSlotID.moduleNumber);
                     }
                     else if (slotID.edgeSide[1] && chunkIdentifier.supposedNeighbour[1] != null)
                     {
