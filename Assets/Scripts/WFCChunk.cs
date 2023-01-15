@@ -73,7 +73,7 @@ namespace WFCGenerator
         /// <summary>
         /// Core function of the algorithm.
         /// </summary>
-        public async void Generate(Vector2 gridPos, Vector3 chunkSize)
+        public void Generate(Vector2 gridPos, Vector3 chunkSize)
         {
             gridOffset = gridPos;
             gridRowWidth = (int)chunkSize.x;
@@ -221,30 +221,28 @@ namespace WFCGenerator
                     // If them modules differ then continue, else if the module has banned duplicates of itself, check this module is not a duplicate.
                     if (generationModules[slotModule] != generationModules[neighbourSlotModule])
                     {
-                        CheckChunkConditions(currentSlot, slotModule);
-                        // int oppositeSlot = 2;
-                        // if (generationModules[slotModule].ConnectsTo(slotID.otherChunkOppositeSlot[0].moduleNumber, oppositeSlot, generationModules))
-                        // {
-                        // }
+                        CheckChunkConditions(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
 
-                        generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
-                        connected = true; // Set connected to true
+                        //? To connect to the other chunk opposite slot, you would have to use ConnectsTo but by passing through the opposite slot's direction connection amd this slot's direction. Then redo the next two checks to ensure the rules are being followed.
+
+                        // generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                        // connected = true; // Set connected to true
                     }
                     else
                     {
                         if (generationModules[slotModule].CheckDuplicateRestriction(generationModules[neighbourSlotModule], neighbourSlot))
                         {
-                            CheckChunkConditions(currentSlot, slotModule);
+                            CheckChunkConditions(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
 
-                            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
-                            connected = true; // Set connected to true
+                            // generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                            // connected = true; // Set connected to true
                         }
                     }
                 }
             }
         }
 
-        private void CheckChunkConditions(int currentSlot, int slotModule)
+        private void CheckChunkConditions(int slotModule, int neighbourSlotModule, int currentSlot, int neighbourSlot, ref bool connected)
         {
             //! TO OPTIMIZE THIS CODE, CREATE A CHECK SO THAT THIS FUNCTION IS ONLY CALLED ONCE PER SLOT
 
@@ -294,19 +292,19 @@ namespace WFCGenerator
                 }
                 else
                 {
-                    int oppositeSlot = 0; // Initialize the opposite slot.
+                    int oppositeSlot = -1; // Initialize the opposite slot.
 
                     if (slotID.edgeSide[1] && chunkIdentifier.chunkNeighbours[1] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth + gridRowWidth - 1;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 1);
-                        direction = 0;
+                        direction = 1;
                     }
                     else if (slotID.edgeSide[3] && chunkIdentifier.chunkNeighbours[3] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 3);
-                        direction = 1;
+                        direction = 3;
                     }
                     else if (slotID.edgeSide[2] && chunkIdentifier.chunkNeighbours[2] != null)
                     {
@@ -318,18 +316,35 @@ namespace WFCGenerator
                     {
                         oppositeSlot = (gridColumnLength - 1) * gridRowWidth + rowPosition;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 0);
-                        direction = 3;
+                        direction = 0;
+                    }
+
+                    if (slotID.otherChunkOppositeSlot[0] != null)
+                    {
+                        if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], direction))
+                        {
+                            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+                            connected = true; // Set connected to true
+                        }
                     }
                 }
             }
+            // else
+            // {
+            //     generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+            //     connected = true; // Set connected to true
+            // }
 
             // if (slotID.otherChunkOppositeSlot[0] != null)
             // {
-            //     if (generationModules[slotModule].ConnectsTo(slotID.otherChunkOppositeSlot[0].moduleNumber, direction, generationModules))
+            //     if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], direction))
             //     {
             //         Debug.Log(generationModules[slotModule].name + " connects to " + slotID.otherChunkOppositeSlot[0].name + " on slot " + direction);
             //     }
             // }
+
+            generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
+            connected = true; // Set connected to true
         }
 
         private WFCSlotIdentifier GetOppositeSlotIdentifier(int oppositeSlot, int neighbourIndex)
