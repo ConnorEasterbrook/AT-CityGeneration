@@ -145,6 +145,7 @@ namespace WFCGenerator
             chunk.transform.position = new Vector3(gridOffset.x * slotSize, 0, gridOffset.y * slotSize);
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
             chunk.name = name + " " + (gridOffset / gridRowWidth); // Set the name of the game object to the name of the grid and the position of the grid.
+            name = chunk.name;
             chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition, this);
             chunkIdentifier = chunk.GetComponent<WFCChunkIdentifier>();
 
@@ -179,6 +180,11 @@ namespace WFCGenerator
                         for (int neighbourSlotModule = 0; neighbourSlotModule < generationModules.Count; neighbourSlotModule++)
                         {
                             CheckSlotConditions(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
+
+                            // if (generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule])
+                            // {
+                            //     break;
+                            // }
                         }
 
                         // If the module isn't connected
@@ -260,49 +266,136 @@ namespace WFCGenerator
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth + gridRowWidth - 1; // lEFT OPPOSITE
                         oppositeSlots[1] = rowPosition; // TOP OPPOSITE
+                        int[] neighbourSlots = new int[2] { 0 , 2 };
+                        GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
+
+                        // if (chunkIdentifier.chunkNeighbours[0] != null && chunkIdentifier.chunkNeighbours[2] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 0);
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 2);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[0] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 0);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[2] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 2);
+                        // }
                     }
                     else if (slotID.edgeSide[0] && slotID.edgeSide[3])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth + gridRowWidth - 1; // LEFT OPPOSITE
                         oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
+                        int[] neighbourSlots = new int[2] { 0 , 3 };
+                        GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
+
+                        // if (chunkIdentifier.chunkNeighbours[0] != null && chunkIdentifier.chunkNeighbours[3] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 0);
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 3);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[0] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 0);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[3] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 3);
+                        // }
                     }
                     else if (slotID.edgeSide[1] && slotID.edgeSide[2])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
                         oppositeSlots[1] = rowPosition; // TOP OPPOSITE
+                        int[] neighbourSlots = new int[2] { 1 , 2 };
+                        GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
+
+                        // if (chunkIdentifier.chunkNeighbours[1] != null && chunkIdentifier.chunkNeighbours[2] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 1);
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 2);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[1] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 1);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[2] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 2);
+                        // }
                     }
                     else if (slotID.edgeSide[1] && slotID.edgeSide[3])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
                         oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
+                        int[] neighbourSlots = new int[2] { 1 , 3 };
+                        GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
+
+                        // if (chunkIdentifier.chunkNeighbours[1] != null && chunkIdentifier.chunkNeighbours[3] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 1);
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 3);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[1] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], 1);
+                        // }
+                        // else if (chunkIdentifier.chunkNeighbours[3] != null)
+                        // {
+                        //     slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], 3);
+                        // }
                     }
                 }
                 else
                 {
                     int oppositeSlot = 0; // Initialize the opposite slot.
 
-                    if (slotID.edgeSide[0] && chunkIdentifier.supposedNeighbour[0] != null)
+                    if (slotID.edgeSide[0] && chunkIdentifier.chunkNeighbours[0] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth + gridRowWidth - 1;
-
-                        // Using the opposite slot integer, get the opposite slot identifier.
-                        GameObject relativeChunkGO = chunkIdentifier.chunkNeighbours[0];
-                        WFCSlotIdentifier oppositeSlotID = relativeChunkGO.GetComponent<WFCChunkIdentifier>().gridSlots[oppositeSlot].GetComponent<WFCSlotIdentifier>();
-                        Debug.Log("Current slot " + currentSlot + " opposite slot " + oppositeSlot + " opposite slot module " + oppositeSlotID.moduleNumber);
+                        slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 0);
                     }
-                    else if (slotID.edgeSide[1] && chunkIdentifier.supposedNeighbour[1] != null)
+                    else if (slotID.edgeSide[1] && chunkIdentifier.chunkNeighbours[1] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth;
+                        slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 1);
                     }
-                    else if (slotID.edgeSide[2] && chunkIdentifier.supposedNeighbour[2] != null)
+                    else if (slotID.edgeSide[2] && chunkIdentifier.chunkNeighbours[2] != null)
                     {
                         oppositeSlot = rowPosition;
+                        slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 2);
                     }
-                    else if (slotID.edgeSide[3] && chunkIdentifier.supposedNeighbour[3] != null)
+                    else if (slotID.edgeSide[3] && chunkIdentifier.chunkNeighbours[3] != null)
                     {
                         oppositeSlot = (gridColumnLength - 1) * gridRowWidth + rowPosition;
+                        slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 3);
                     }
                 }
+            }
+        }
+
+        private WFCSlotIdentifier GetOppositeSlotIdentifier(int oppositeSlot, int neighbourIndex)
+        {
+            WFCChunkIdentifier relativeChunk = chunkIdentifier.chunkNeighbours[neighbourIndex].GetComponent<WFCChunkIdentifier>();
+            WFCSlotIdentifier oppositeSlotID = relativeChunk.gridSlots[oppositeSlot].GetComponent<WFCSlotIdentifier>();
+            return oppositeSlotID;
+        }
+
+        private void GetOppositeSlotIdentifierCorner(int[] neighbourIndex, int[] oppositeSlots)
+        {
+            if (chunkIdentifier.chunkNeighbours[neighbourIndex[0]] != null && chunkIdentifier.chunkNeighbours[neighbourIndex[1]] != null)
+            {
+                slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], neighbourIndex[0]);
+                slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], neighbourIndex[1]);
+            }
+            else if (chunkIdentifier.chunkNeighbours[neighbourIndex[0]] != null)
+            {
+                slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlots[0], neighbourIndex[0]);
+            }
+            else if (chunkIdentifier.chunkNeighbours[neighbourIndex[1]] != null)
+            {
+                slotID.otherChunkOppositeSlot[1] = GetOppositeSlotIdentifier(oppositeSlots[1], neighbourIndex[1]);
             }
         }
 
@@ -599,8 +692,8 @@ namespace WFCGenerator
 
                 if (generationModules[module].randomPlacement)
                 {
-                    float randX = Random.Range(-5, 5);
-                    float randZ = Random.Range(-5, 5);
+                    float randX = Random.Range(-4, 4);
+                    float randZ = Random.Range(-4, 4);
                     Vector3 position = GetPosition(x, y, z); // Set the position of the module prefab to the open slot.
                     position.x += randX;
                     position.z += randZ;

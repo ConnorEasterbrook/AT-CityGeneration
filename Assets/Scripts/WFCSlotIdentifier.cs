@@ -40,7 +40,7 @@ namespace WFCGenerator
         public bool cornerEdgeSlot;
         public bool[] edgeSide; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
         public int singleEdgeSide;
-        public GameObject[] otherChunkOppositeSlot; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
+        public WFCSlotIdentifier[] otherChunkOppositeSlot; // The slot position of the other chunk's neighbour slot if the slot is along the edge of the chunk. The order is: left, right, top, bottom
 
         public void EstablishInformation(int _slotPosition, Vector3Int _chunkSize)
         {
@@ -52,7 +52,7 @@ namespace WFCGenerator
             heightPosition = slotPosition / (_chunkSize.x * _chunkSize.z);
 
             edgeSide = new bool[4];
-            otherChunkOppositeSlot = new GameObject[4];
+            otherChunkOppositeSlot = new WFCSlotIdentifier[2];
 
             // Check if the slot is along the edge of the chunk
             if (rowPosition == 0 || rowPosition == _chunkSize.x - 1 || columnPosition == 0 || columnPosition == _chunkSize.z - 1)
@@ -157,6 +157,7 @@ namespace WFCGenerator
             NAME = slotID.NAME;
             gameObject.name = NAME;
             moduleNumber = slotID.moduleNumber;
+            otherChunkOppositeSlot = slotID.otherChunkOppositeSlot;
 
             if (gameObject.activeInHierarchy == true && Application.isPlaying)
             {
