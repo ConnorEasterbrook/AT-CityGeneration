@@ -17,13 +17,13 @@ MonoBehaviour:
   - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
   - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
   - {fileID: 1825706968152292, guid: 5ff647d15160e7e42917b3e338c66c66, type: 3}
-  forward:
+  left:
     name: 4
   right:
     name: 3
-  back:
+  up:
     name: 4
-  left:
+  down:
     name: 4
   above:
     name: 
@@ -37,3 +37,4 @@ MonoBehaviour:
   bannedModules: []
   probability: 1
   randomPlacement: 0
+  connection: 0

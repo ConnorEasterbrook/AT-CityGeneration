@@ -21,6 +21,7 @@
 */
 
 using UnityEngine;
+using System.Collections.Generic;
 using UnityEditor;
 
 namespace WFCGenerator
@@ -30,10 +31,10 @@ namespace WFCGenerator
     public class WFCModule : ScriptableObject
     {
         public GameObject[] prefab;
-        [HideInInspector] public WFCConnection forward;
-        [HideInInspector] public WFCConnection right;
-        [HideInInspector] public WFCConnection back;
+        [HideInInspector] public WFCConnection down;
         [HideInInspector] public WFCConnection left;
+        [HideInInspector] public WFCConnection up;
+        [HideInInspector] public WFCConnection right;
         [HideInInspector] public WFCConnection above;
         [HideInInspector] public WFCConnection below;
         public bool rotate180;
@@ -48,127 +49,28 @@ namespace WFCGenerator
 
         public bool ConnectsTo(WFCModule other, int direction)
         {
+            // Check direction in order down, left, up, right, above, below
             if (direction == 0)
             {
-                // if (back.ConnectsTo(other.forward))
-                // {
-                //     connection = 0;
-                //     return true;
-                // }
-                // else if (right.ConnectsTo(other.forward))
-                // {
-                //     connection = 1;
-                //     return true;
-                // }
-                // else if (forward.ConnectsTo(other.forward))
-                // {
-                //     connection = 2;
-                //     return true;
-                // }
-                // else if (left.ConnectsTo(other.forward))
-                // {
-                //     connection = 3;
-                //     return true;
-                // }
-                // else
-                // {
-                //     return false;
-                // }
-
-                return back.ConnectsTo(other.forward);
+                return down.ConnectsTo(other.up);
             }
-            else if (direction == 1)
+            if (direction == 1)
             {
-                // if (left.ConnectsTo(other.right))
-                // {
-                //     connection = 0;
-                //     return true;
-                // }
-                // else if (back.ConnectsTo(other.right))
-                // {
-                //     connection = 1;
-                //     return true;
-                // }
-                // else if (right.ConnectsTo(other.right))
-                // {
-                //     connection = 2;
-                //     return true;
-                // }
-                // else if (forward.ConnectsTo(other.right))
-                // {
-                //     connection = 3;
-                //     return true;
-                // }
-                // else
-                // {
-                //     return false;
-                // }
-
                 return left.ConnectsTo(other.right);
             }
-            else if (direction == 2)
+            if (direction == 2)
             {
-                // if (forward.ConnectsTo(other.back))
-                // {
-                //     connection = 0;
-                //     return true;
-                // }
-                // else if (left.ConnectsTo(other.back))
-                // {
-                //     connection = 1;
-                //     return true;
-                // }
-                // else if (back.ConnectsTo(other.back))
-                // {
-                //     connection = 2;
-                //     return true;
-                // }
-                // else if (right.ConnectsTo(other.back))
-                // {
-                //     connection = 3;
-                //     return true;
-                // }
-                // else
-                // {
-                //     return false;
-                // }
-
-                return forward.ConnectsTo(other.back);
+                return up.ConnectsTo(other.down);
             }
-            else if (direction == 3)
+            if (direction == 3)
             {
-                // if (right.ConnectsTo(other.left))
-                // {
-                //     connection = 0;
-                //     return true;
-                // }
-                // else if (back.ConnectsTo(other.left))
-                // {
-                //     connection = 1;
-                //     return true;
-                // }
-                // else if (left.ConnectsTo(other.left))
-                // {
-                //     connection = 2;
-                //     return true;
-                // }
-                // else if (forward.ConnectsTo(other.left))
-                // {
-                //     connection = 3;
-                //     return true;
-                // }
-                // else
-                // {
-                //     return false;
-                // }
-
                 return right.ConnectsTo(other.left);
             }
-            else if (direction == 4)
+            if (direction == 4)
             {
                 return above.ConnectsTo(other.below);
             }
-            else if (direction == 5)
+            if (direction == 5)
             {
                 return below.ConnectsTo(other.above);
             }
@@ -178,10 +80,42 @@ namespace WFCGenerator
             }
         }
 
-        public int ReturnConnectionDirection()
-        {
-            return connection;
-        }
+        // public bool ConnectsTo(int moduleNumer, int direction, List<WFCModule> modules)
+        // {
+        //     if (direction == 0)
+        //     {
+        //         return left.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else if (direction == 1)
+        //     {
+        //         return right.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else if (direction == 2)
+        //     {
+        //         return up.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else if (direction == 3)
+        //     {
+        //         return down.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else if (direction == 4)
+        //     {
+        //         return above.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else if (direction == 5)
+        //     {
+        //         return below.ConnectsTo(moduleNumer, modules);
+        //     }
+        //     else
+        //     {
+        //         throw new System.ArgumentException("Invalid direction");
+        //     }
+        // }
+
+        // public int ReturnConnectionDirection()
+        // {
+        //     return connection;
+        // }
 
         public bool CheckBannedNeighbour(WFCModule other, int direction)
         {
@@ -192,13 +126,13 @@ namespace WFCGenerator
                     bool banned = false;
                     for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        if (back.ConnectsTo(other.forward) && bannedModules[bannedNeighbourModule] == other)
+                        if (down.ConnectsTo(other.up) && bannedModules[bannedNeighbourModule] == other)
                         {
                             banned = true;
                         }
                     }
 
-                    if (back.ConnectsTo(other.forward) && !banned)
+                    if (down.ConnectsTo(other.up) && !banned)
                     {
                         return true;
                     }
@@ -214,6 +148,7 @@ namespace WFCGenerator
             }
             else if (direction == 1)
             {
+
                 if (banModules)
                 {
                     bool banned = false;
@@ -246,13 +181,13 @@ namespace WFCGenerator
                     bool banned = false;
                     for (int bannedNeighbourModule = 0; bannedNeighbourModule < bannedModules.Length; bannedNeighbourModule++)
                     {
-                        if (forward.ConnectsTo(other.back) && bannedModules[bannedNeighbourModule] == other)
+                        if (up.ConnectsTo(other.down) && bannedModules[bannedNeighbourModule] == other)
                         {
                             banned = true;
                         }
                     }
 
-                    if (forward.ConnectsTo(other.back) && !banned)
+                    if (up.ConnectsTo(other.down) && !banned)
                     {
                         return true;
                     }
@@ -268,6 +203,7 @@ namespace WFCGenerator
             }
             else if (direction == 3)
             {
+
                 if (banModules)
                 {
                     bool banned = false;
@@ -303,7 +239,7 @@ namespace WFCGenerator
         {
             if (direction == 0)
             {
-                if (back.ConnectsTo(other.forward) && !banForward)
+                if (down.ConnectsTo(other.up) && !banForward)
                 {
                     return true;
                 }
@@ -325,7 +261,7 @@ namespace WFCGenerator
             }
             else if (direction == 2)
             {
-                if (forward.ConnectsTo(other.back) && !banForward)
+                if (up.ConnectsTo(other.down) && !banForward)
                 {
                     return true;
                 }
@@ -362,10 +298,10 @@ namespace WFCGenerator
 
             WFCModule module = (WFCModule)target;
 
-            serializedObject.FindProperty("forward.name").stringValue = EditorGUILayout.TextField("Forward", module.forward.name);
-            serializedObject.FindProperty("right.name").stringValue = EditorGUILayout.TextField("Right", module.right.name);
-            serializedObject.FindProperty("back.name").stringValue = EditorGUILayout.TextField("Back", module.back.name);
             serializedObject.FindProperty("left.name").stringValue = EditorGUILayout.TextField("Left", module.left.name);
+            serializedObject.FindProperty("right.name").stringValue = EditorGUILayout.TextField("Right", module.right.name);
+            serializedObject.FindProperty("up.name").stringValue = EditorGUILayout.TextField("Up", module.up.name);
+            serializedObject.FindProperty("down.name").stringValue = EditorGUILayout.TextField("Down", module.down.name);
             serializedObject.FindProperty("above.name").stringValue = EditorGUILayout.TextField("Above", module.above.name);
             serializedObject.FindProperty("below.name").stringValue = EditorGUILayout.TextField("Below", module.below.name);
 

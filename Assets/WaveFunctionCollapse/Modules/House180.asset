@@ -17,14 +17,14 @@ MonoBehaviour:
   - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
   - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
   - {fileID: 1825706968152292, guid: 5ff647d15160e7e42917b3e338c66c66, type: 3}
-  forward:
-    name: 4
-  right:
-    name: 4
-  back:
-    name: 4
   left:
     name: 0
+  right:
+    name: 4
+  up:
+    name: 4
+  down:
+    name: 4
   above:
     name: 
   below:
@@ -37,3 +37,5 @@ MonoBehaviour:
   bannedModules:
   - {fileID: 11400000, guid: 8e899d932c502384ca07b80fb6050e14, type: 2}
   probability: 1
+  randomPlacement: 0
+  connection: 0

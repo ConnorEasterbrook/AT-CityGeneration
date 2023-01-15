@@ -27,13 +27,13 @@ MonoBehaviour:
   - {fileID: 919132149155446097, guid: 71daca4cd13724d40b8ae9be53c801e9, type: 3}
   - {fileID: 919132149155446097, guid: 78d855c557fdeca4f9c5f3eff8ce3324, type: 3}
   - {fileID: 919132149155446097, guid: fa3ef4094c136644590f0a8f2bb4b926, type: 3}
-  forward:
+  left:
     name: 0
   right:
     name: 0
-  back:
+  up:
     name: 0
-  left:
+  down:
     name: 0
   above:
     name: 
@@ -48,3 +48,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7e530fcaaf081754690ab854bd05f84c, type: 2}
   probability: 1
   randomPlacement: 1
+  connection: 0

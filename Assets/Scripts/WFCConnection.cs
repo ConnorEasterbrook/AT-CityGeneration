@@ -20,6 +20,7 @@
  * SOFTWARE.
 */
 
+using System.Collections.Generic;
 using System;
 
 namespace WFCGenerator
@@ -32,6 +33,11 @@ namespace WFCGenerator
         public bool ConnectsTo(WFCConnection other)
         {
             return name == other.name;
+        }
+
+        public bool ConnectsTo(int moduleNumber, List<WFCModule> modules)
+        {
+            return name == modules[moduleNumber].name;
         }
     }
 }

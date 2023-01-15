@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab:
   - {fileID: 4384177558676243387, guid: 965d834d728dab04a95e3539efbafa37, type: 3}
-  forward:
-    name: 0
-  right:
-    name: 2
-  back:
+  down:
     name: 4
   left:
+    name: 2
+  up:
+    name: 0
+  right:
     name: 2
   above:
     name: 
@@ -34,3 +34,5 @@ MonoBehaviour:
   bannedModules:
   - {fileID: 11400000, guid: 6518736853c71f3448f345ab694ba35f, type: 2}
   probability: 1
+  randomPlacement: 0
+  connection: 0
