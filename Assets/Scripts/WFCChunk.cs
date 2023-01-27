@@ -423,7 +423,7 @@ namespace WFCGenerator
                         }
                     }
 
-                    ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
+                    // ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                 }
                 else
                 {
@@ -469,7 +469,7 @@ namespace WFCGenerator
                 ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
             }
 
-            ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
+            // ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
         }
 
         private WFCSlotIdentifier GetOppositeSlotIdentifier(int oppositeSlot, int neighbourIndex)
