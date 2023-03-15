@@ -124,7 +124,7 @@ namespace WFCGenerator
             chunk.transform.rotation = generator.transform.rotation; // Set the rotation of the game object to the generator.
             chunk.name = name + " " + (gridOffset / gridRowWidth); // Set the name of the game object to the name of the grid and the position of the grid.
             name = chunk.name;
-            chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition, this);
+            chunk.AddComponent<WFCChunkIdentifier>().EstablishInformation(chunkPosition, this, new Vector3(gridRowWidth, gridHeight, gridColumnLength), slotSize);
             chunkIdentifier = chunk.GetComponent<WFCChunkIdentifier>();
 
             // Initialize variables.
@@ -202,8 +202,6 @@ namespace WFCGenerator
                     {
                         CheckChunkConditions(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
 
-                        //? To connect to the other chunk opposite slot, you would have to use ConnectsTo but by passing through the opposite slot's direction connection amd this slot's direction. Then redo the next two checks to ensure the rules are being followed.
-
                         // generation[currentSlot, neighbourSlot, slotModule, neighbourSlotModule] = true; // Set the wave booleans to true
                         // connected = true; // Set connected to true
                     }
@@ -227,7 +225,8 @@ namespace WFCGenerator
 
             int direction = 0;
 
-            // If the tile is an edge tile
+            // THIS COMMENTED CODE WAS MY ATTEMP AT MATCHING TILE EDGES. 
+            /*// If the tile is an edge tile
             if (slotID.edgeSlot && chunkIdentifier.hasNeighbour)
             {
                 int rowPosition = slotID.rowPosition; // Get the row position of the slot.
@@ -265,11 +264,11 @@ namespace WFCGenerator
                                 {
                                     if (slotID.otherChunkOppositeSlot[0] == null)
                                     {
-                                        direction = neighbourSlots[0];
+                                        direction = neighbourSlots[1];
                                     }
                                     else
                                     {
-                                        direction = neighbourSlots[1];
+                                        direction = neighbourSlots[0];
                                     }
 
                                     if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
@@ -280,20 +279,20 @@ namespace WFCGenerator
                             }
                         }
                     }
-                    else if (slotID.edgeSide[1] && slotID.edgeSide[0])
+                    else if(slotID.edgeSide[1] && slotID.edgeSide[0])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth + gridRowWidth - 1; // LEFT OPPOSITE
                         oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
                         int[] neighbourSlots = new int[2] { 1, 0 };
                         int result = GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
 
-                        if (result != -1)
+                        if(result != -1)
                         {
-                            if (result == 2)
+                            if(result == 2)
                             {
-                                if (slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
+                                if(slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
                                 {
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -301,18 +300,18 @@ namespace WFCGenerator
                             }
                             else
                             {
-                                if (slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
+                                if(slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
                                 {
-                                    if (slotID.otherChunkOppositeSlot[0] == null)
-                                    {
-                                        direction = neighbourSlots[0];
-                                    }
-                                    else
+                                    if(slotID.otherChunkOppositeSlot[0] == null)
                                     {
                                         direction = neighbourSlots[1];
                                     }
+                                    else
+                                    {
+                                        direction = neighbourSlots[0];
+                                    }
 
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -320,20 +319,20 @@ namespace WFCGenerator
                             }
                         }
                     }
-                    else if (slotID.edgeSide[3] && slotID.edgeSide[2])
+                    else if(slotID.edgeSide[3] && slotID.edgeSide[2])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
                         oppositeSlots[1] = rowPosition; // TOP OPPOSITE
                         int[] neighbourSlots = new int[2] { 3, 2 };
                         int result = GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
 
-                        if (result != -1)
+                        if(result != -1)
                         {
-                            if (result == 2)
+                            if(result == 2)
                             {
-                                if (slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
+                                if(slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
                                 {
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -341,18 +340,18 @@ namespace WFCGenerator
                             }
                             else
                             {
-                                if (slotID.otherChunkOppositeSlot[0] == null)
-                                {
-                                    direction = neighbourSlots[0];
-                                }
-                                else
+                                if(slotID.otherChunkOppositeSlot[0] == null)
                                 {
                                     direction = neighbourSlots[1];
                                 }
-
-                                if (slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
+                                else
                                 {
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
+                                    direction = neighbourSlots[0];
+                                }
+
+                                if(slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
+                                {
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -360,20 +359,20 @@ namespace WFCGenerator
                             }
                         }
                     }
-                    else if (slotID.edgeSide[3] && slotID.edgeSide[0])
+                    else if(slotID.edgeSide[3] && slotID.edgeSide[0])
                     {
                         oppositeSlots[0] = columnPosition * gridRowWidth; // RIGHT OPPOSITE
                         oppositeSlots[1] = (gridColumnLength - 1) * gridRowWidth + rowPosition; // BOTTOM OPPOSITE
                         int[] neighbourSlots = new int[2] { 3, 0 };
                         int result = GetOppositeSlotIdentifierCorner(neighbourSlots, oppositeSlots);
 
-                        if (result != -1)
+                        if(result != -1)
                         {
-                            if (result == 2)
+                            if(result == 2)
                             {
-                                if (slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
+                                if(slotID.otherChunkOppositeSlot[0] != null && slotID.otherChunkOppositeSlot[1] != null)
                                 {
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], neighbourSlots[0]) && generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[1].moduleNumber], neighbourSlots[1]))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -381,18 +380,18 @@ namespace WFCGenerator
                             }
                             else
                             {
-                                if (slotID.otherChunkOppositeSlot[0] == null)
-                                {
-                                    direction = neighbourSlots[0];
-                                }
-                                else
+                                if(slotID.otherChunkOppositeSlot[0] == null)
                                 {
                                     direction = neighbourSlots[1];
                                 }
-
-                                if (slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
+                                else
                                 {
-                                    if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
+                                    direction = neighbourSlots[0];
+                                }
+
+                                if(slotID.otherChunkOppositeSlot[0] != null || slotID.otherChunkOppositeSlot[1] != null)
+                                {
+                                    if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[result].moduleNumber], direction))
                                     {
                                         ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
                                     }
@@ -407,34 +406,34 @@ namespace WFCGenerator
                 {
                     int oppositeSlot = -1; // Initialize the opposite slot.
 
-                    if (slotID.edgeSide[1] && chunkIdentifier.chunkNeighbours[1] != null)
+                    if(slotID.edgeSide[1] && chunkIdentifier.chunkNeighbours[1] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth + gridRowWidth - 1;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 1);
                         direction = 1;
                     }
-                    else if (slotID.edgeSide[3] && chunkIdentifier.chunkNeighbours[3] != null)
+                    else if(slotID.edgeSide[3] && chunkIdentifier.chunkNeighbours[3] != null)
                     {
                         oppositeSlot = columnPosition * gridRowWidth;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 3);
                         direction = 3;
                     }
-                    else if (slotID.edgeSide[2] && chunkIdentifier.chunkNeighbours[2] != null)
+                    else if(slotID.edgeSide[2] && chunkIdentifier.chunkNeighbours[2] != null)
                     {
                         oppositeSlot = rowPosition;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 2);
                         direction = 2;
                     }
-                    else if (slotID.edgeSide[0] && chunkIdentifier.chunkNeighbours[0] != null)
+                    else if(slotID.edgeSide[0] && chunkIdentifier.chunkNeighbours[0] != null)
                     {
                         oppositeSlot = (gridColumnLength - 1) * gridRowWidth + rowPosition;
                         slotID.otherChunkOppositeSlot[0] = GetOppositeSlotIdentifier(oppositeSlot, 0);
                         direction = 0;
                     }
 
-                    if (slotID.otherChunkOppositeSlot[0] != null)
+                    if(slotID.otherChunkOppositeSlot[0] != null)
                     {
-                        if (generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], direction))
+                        if(generationModules[slotModule].ConnectsTo(generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber], direction))
                         {
                             // Debug.Log(generationModules[slotModule] + " connects to " + generationModules[slotID.otherChunkOppositeSlot[0].moduleNumber] + " in direction " + direction + " | In Slot " + currentSlot + " | In Chunk " + chunkIdentifier.name);
                             ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
@@ -445,9 +444,9 @@ namespace WFCGenerator
             else
             {
                 ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
-            }
+            }*/
 
-            // ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
+             ConfirmSlotGeneration(slotModule, neighbourSlotModule, currentSlot, neighbourSlot, ref connected);
         }
 
         private WFCSlotIdentifier GetOppositeSlotIdentifier(int oppositeSlot, int neighbourIndex)
@@ -583,7 +582,7 @@ namespace WFCGenerator
         /// <summary>
         /// Calculate what will fill the next slot.
         /// </summary>
-        int NextSlot()
+        private int NextSlot()
         {
             if (failed)
             {

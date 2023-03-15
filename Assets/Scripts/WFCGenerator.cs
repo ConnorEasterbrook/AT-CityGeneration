@@ -79,7 +79,7 @@ namespace WFCGenerator
             }
         }
 
-        void OnDrawGizmos()
+        private void OnDrawGizmos()
         {
             if (!drawGizmos)
             {
