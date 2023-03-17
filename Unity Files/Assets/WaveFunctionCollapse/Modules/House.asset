@@ -14,17 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefab:
   - {fileID: 1827270247712948, guid: f2b055ed15f48bd4793c0d0ef6185ee5, type: 3}
+  - {fileID: 1827270247712948, guid: f465739ee4c35074eba0b336db5644cd, type: 3}
+  - {fileID: 1827270247712948, guid: 42b8190d90c00334dbdae5719c827cd9, type: 3}
   - {fileID: 1308482107808716, guid: 6c8d046662436564eb5afcf4e9caaf9b, type: 3}
+  - {fileID: 1308482107808716, guid: 5c4b0ba96479af14eaa28afcaa83238f, type: 3}
   - {fileID: 1644558701149256, guid: 01db66142cb4c7543bba603ccfee344a, type: 3}
+  - {fileID: 1644558701149256, guid: 6e973ff4c7287074fa27268bf23bb1bb, type: 3}
   - {fileID: 1825706968152292, guid: 5ff647d15160e7e42917b3e338c66c66, type: 3}
+  - {fileID: 1825706968152292, guid: b00f73ec517f23645bc419dc6257fb27, type: 3}
+  - {fileID: 1825706968152292, guid: 8315a55593efcd849abc6edde5571442, type: 3}
+  down:
+    name: 4
   left:
+    name: 4
+  up:
     name: 4
   right:
     name: 3
-  up:
-    name: 4
-  down:
-    name: 4
   above:
     name: 
   below:
