@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace WFCGenerator
 {
@@ -13,6 +14,8 @@ namespace WFCGenerator
         public List<GameObject> gridSlots = new List<GameObject>();
         private Vector3 _gridSize = Vector3.zero;
         private float _slotSize = 0;
+
+        private WFCGenerator _generator => WFCGenerator.instance;
 
         public void EstablishInformation(Vector2 _chunkPos, WFCChunk thisChunk, Vector3 gridSize, float slotSize)
         {
@@ -39,8 +42,11 @@ namespace WFCGenerator
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireCube(transform.position, new Vector3(_gridSize.x * _slotSize, _gridSize.y * _slotSize, _gridSize.z * _slotSize));
+            if(_generator.GetDrawGizmos())
+            {
+                Gizmos.color = Color.yellow;
+                Gizmos.DrawWireCube(transform.position, new Vector3(_gridSize.x * _slotSize, _gridSize.y * _slotSize, _gridSize.z * _slotSize));
+            }
         }
     }
 }

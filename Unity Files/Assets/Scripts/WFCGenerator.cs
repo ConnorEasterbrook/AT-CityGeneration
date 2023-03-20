@@ -26,6 +26,20 @@ namespace WFCGenerator
         private List<GameObject> chunkList = new List<GameObject>(); // A list of all the chunks generated
         private bool initialGenerationComplete = false; // Has the initial generation completed?
 
+        public static WFCGenerator instance; // The instance of the WFCGenerator class
+
+        private void Awake()
+        {
+            if (instance == null)
+            {
+                instance = this;
+            }
+            else
+            {
+                Destroy(instance);
+            }
+        }
+
         private void Start()
         {
             Generate(); // Generate the map
@@ -104,15 +118,18 @@ namespace WFCGenerator
             }
 
             ClearVariables(); // Clear the variables
-            StartCoroutine(GenerateChunks());
+            /*StartCoroutine(GenerateChunks());*/
+            CallGenerate();
         }
 
         private IEnumerator GenerateChunks()
         {
             for (int x = -chunkAmount; x < chunkAmount + 1; x++)
             {
+                Debug.Log("Generating chunk row " + x);
                 for (int y = -chunkAmount; y < chunkAmount + 1; y++)
                 {
+                    Debug.Log("Generating chunk " + x + ", " + y);
                     yield return new WaitForSeconds(delay);
 
                     Vector2 mapSize = new Vector2();
@@ -175,6 +192,11 @@ namespace WFCGenerator
             chunkGrid.Clear(mapParent);
             chunks.Clear();
             chunkList.Clear();
+        }
+
+        public bool GetDrawGizmos()
+        {
+            return drawGizmos;
         }
     }
 

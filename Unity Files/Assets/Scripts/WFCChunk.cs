@@ -71,7 +71,6 @@ namespace WFCGenerator
                     // If next slot is found, propagate the wave function collapse algorithm.
                     if (index >= 0)
                     {
-                        // await Task.Delay(50);
                         FindPossibleModules(index);
                     }
                     else
